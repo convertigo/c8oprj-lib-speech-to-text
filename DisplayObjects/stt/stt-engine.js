@@ -5,13 +5,13 @@
 //   const { speechToText } = await import(libUrl + 'stt-engine.js');
 //   const stt = speechToText();
 //   const off = stt.on((e) => { ... });   // every event, see emit() below
-//   await stt.load({ model: 'auto', language: '', modelsUrl: '' });   // '' = language of the browser
+//   await stt.load({ model: 'auto', language: '', task: 'transcribe', modelsUrl: '' });   // '' = language of the browser
 //   await stt.start(ownerId, { micProcessing: true });  …  stt.stop();
 //
-// Events: {type:'state', state} after every change, {type:'ready', model, device, reason, loadMs, language},
+// Events: {type:'state', state} after every change, {type:'ready', model, device, reason, loadMs, language, task},
 // {type:'partial', owner, text}, {type:'final', owner, text}, {type:'done', owner}, {type:'error', owner, message},
 // {type:'stats', kind, ms, audioS}. state = {status, ready, loading, listening, finishing, speaking, level, model,
-// device, reason, loadMs, progress, owner, error, language ('auto' when detected)}.
+// device, reason, loadMs, progress, owner, error, language ('auto' when detected), task}.
 
 const LIB_URL = new URL('./', import.meta.url).href;
 
@@ -70,7 +70,7 @@ class SpeechToTextEngine {
 		this.source = null;
 		this.state = {
 			status: 'idle', ready: false, loading: false, listening: false, finishing: false, speaking: false, level: 0,
-			model: '', device: '', reason: '', loadMs: 0, progress: 0, owner: null, error: '', language: '',
+			model: '', device: '', reason: '', loadMs: 0, progress: 0, owner: null, error: '', language: '', task: 'transcribe',
 		};
 	}
 
@@ -96,14 +96,16 @@ class SpeechToTextEngine {
 	}
 
 	// Loads the model (once per configuration). Options: model 'auto'|'base'|'small', language (see resolveLanguage:
-	// Whisper name, ISO code, 'auto' to detect it, empty for the language of the browser), modelsUrl (folder holding onnx-community/<model>/ for both models; empty: the model
+	// Whisper name, ISO code, 'auto' to detect it, empty for the language of the browser), task ('transcribe' writes in
+	// the spoken language, 'translate' writes English), modelsUrl (folder holding onnx-community/<model>/ for both models; empty: the model
 	// projects deployed on this server). Resolves with the ready event.
 	load(options = {}) {
 		const model = options.model || 'auto';
 		const language = resolveLanguage(options.language);
+		const task = options.task === 'translate' ? 'translate' : 'transcribe';
 		// absolute URL: the worker (and transformers.js) cannot resolve a path relative to the page
 		const modelsUrl = options.modelsUrl ? withSlash(new URL(String(options.modelsUrl), document.baseURI).href) : '';
-		const key = JSON.stringify([model, language, modelsUrl]);
+		const key = JSON.stringify([model, language, task, modelsUrl]);
 		if (this.config === key && this.readyPromise) {
 			return this.readyPromise;
 		}
@@ -112,7 +114,7 @@ class SpeechToTextEngine {
 			this.worker.terminate();
 		}
 		this.config = key;
-		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '', language: language || 'auto' });
+		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '', language: language || 'auto', task });
 		const worker = new Worker(LIB_URL + 'stt-worker.js', { type: 'module' });
 		this.worker = worker;
 		this.readyPromise = new Promise((resolve, reject) => {
@@ -131,7 +133,7 @@ class SpeechToTextEngine {
 			}
 		});
 		worker.postMessage({
-			type: 'init', model, language,
+			type: 'init', model, language, task,
 			modelUrls: {
 				base: modelsUrl || defaultModelUrl('lib_SpeechToText_model_whisperBase'),
 				small: modelsUrl || defaultModelUrl('lib_SpeechToText_model_whisperSmall'),
@@ -147,7 +149,7 @@ class SpeechToTextEngine {
 				this.setState({ progress: m.total ? Math.round(m.loaded * 100 / m.total) : 0 });
 				break;
 			case 'ready': {
-				const ready = { type: 'ready', model: m.model, device: m.device, reason: m.reason, loadMs: m.ms, language: this.state.language };
+				const ready = { type: 'ready', model: m.model, device: m.device, reason: m.reason, loadMs: m.ms, language: this.state.language, task: this.state.task };
 				this.setState({ status: 'ready', ready: true, loading: false, model: m.model, device: m.device, reason: m.reason, loadMs: m.ms, progress: 100 });
 				this.emit(ready);
 				resolve(ready);

@@ -852,7 +852,123 @@ title: Speech to text
                 textValue: 
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                    - MobileSmartSourceType: 'plain:The text is written in this language. Detection often takes an accent for English: choose the language when you can.'
+                    - MobileSmartSourceType: 'plain:The language you speak. Detection often takes an accent for English: choose the language when you can.'
+          ↓OutputField [ngx.components.UIDynamicElement-1795542721594]: 
+            beanData: '{"ionBean":"DivTag"}'
+            comment: 'Language of the text: the spoken one, or English'
+            tagName: div
+            ↓Class [ngx.components.UIAttribute-1795542721596]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-field
+            ↓OutputLabel [ngx.components.UIDynamicElement-1795542721598]: 
+              beanData: '{"ionBean":"DivTag"}'
+              tagName: div
+              ↓Class [ngx.components.UIAttribute-1795542721600]: 
+                attrName: class
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:demo-label
+              ↓Text [ngx.components.UIText-1795542721602]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Text written in
+            ↓OutputSegment [ngx.components.UIDynamicElement-1795542721604]: 
+              beanData: |
+                '{
+                 "ionBean": "Segment",
+                 "Disabled": "plain:false",
+                 "ControlName": "plain:name1795542721604",
+                 "DoubleBinding": "plain",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Scrollable": "plain:false",
+                 "SelectOnFocus": "plain:false",
+                 "SwipeGesture": "plain:true",
+                 "Value": "plain"
+                }'
+              comment: Task passed to both speechToText_sc
+              tagName: ion-segment
+              ↓Value [ngx.components.UIAttribute-1795542721606]: 
+                attrName: '[value]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.task || 'transcribe'
+              ↓Change [ngx.components.UIAttribute-1795542721608]: 
+                attrName: (ionChange)
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:local.task = $event.detail.value
+              ↓Disabled [ngx.components.UIAttribute-1795542721610]: 
+                attrName: '[disabled]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!!(local?.state?.listening || local?.state?.loading)
+              ↓Spoken [ngx.components.UIDynamicElement-1795542721612]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795542721614]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:transcribe
+                ↓Text [ngx.components.UIText-1795542721616]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Spoken language
+              ↓English [ngx.components.UIDynamicElement-1795542721618]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795542721620]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:translate
+                ↓Text [ngx.components.UIText-1795542721622]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:English (translation)
+            ↓OutputHelp [ngx.components.UIDynamicElement-1795542721624]: 
+              beanData: '{"ionBean":"DivTag"}'
+              tagName: div
+              ↓Class [ngx.components.UIAttribute-1795542721626]: 
+                attrName: class
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:demo-help
+              ↓Text [ngx.components.UIText-1795542721628]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Whisper translates to English only, with the same model. Better with Small.
     ↓LiveCard [ngx.components.UIDynamicElement-1795539919140]: 
       beanData: |
         '{
@@ -939,6 +1055,11 @@ title: Speech to text
                 - xmlizable: 
                   - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                   - MobileSmartSourceType: script:local?.language || ''
+            ↓task [ngx.components.UIUseVariable-1795542722684]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.task || 'transcribe'
             ↓OnPartial [ngx.components.UIControlEvent-1795539920220]: 
               attrName: (Partial)
               eventName: Partial
@@ -1173,7 +1294,7 @@ title: Speech to text
                 textValue: 
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                    - MobileSmartSourceType: 'script:local?.info?.language === ''auto'' ? ''Detected language'' : ((local?.info?.language || '''') | titlecase)'
+                    - MobileSmartSourceType: 'script:(local?.info?.language === ''auto'' ? ''Detected language'' : ((local?.info?.language || '''') | titlecase)) + (local?.info?.task === ''translate'' ? '' → English'' : '''')'
             ↓PerfChip [ngx.components.UIDynamicElement-1795539920736]: 
               beanData: |
                 '{
@@ -1464,6 +1585,11 @@ title: Speech to text
                 - xmlizable: 
                   - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                   - MobileSmartSourceType: script:local?.language || ''
+            ↓task [ngx.components.UIUseVariable-1795542723740]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.task || 'transcribe'
             ↓label [ngx.components.UIUseVariable-1795539920812]: 
               varValue: 
                 - xmlizable: 

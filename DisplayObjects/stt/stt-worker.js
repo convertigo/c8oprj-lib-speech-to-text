@@ -5,7 +5,8 @@
 // detector cuts the speech into utterances, the utterance in progress is transcribed again as soon as the
 // previous pass ends (partial text), and once the speaker pauses it is transcribed one last time (final text).
 //
-// In:  {type:'init', model:'auto'|'base'|'small', language, modelUrls:{base, small}} (folder holding onnx-community/<model>/)
+// In:  {type:'init', model:'auto'|'base'|'small', language, task:'transcribe'|'translate', modelUrls:{base, small}}
+//      (modelUrls: folder holding onnx-community/<model>/; translate writes English whatever the spoken language)
 //      | {type:'audio', samples: Float32Array mono 16 kHz}
 //      | {type:'flush'} (end of recording: finalize the utterance in progress)
 // Out: {type:'progress', loaded, total} | {type:'ready', model, device, dtype, ms, reason}
@@ -37,7 +38,8 @@ const PROJECTS = { base: 'lib_SpeechToText_model_whisperBase', small: 'lib_Speec
 
 let asr = null;
 let current = null;
-let language = 'french';
+let language = '';
+let task = 'transcribe';
 let modelUrls = {};
 
 function modelKind(key) {
@@ -250,9 +252,10 @@ function clean(text) {
 	return HALLUCINATIONS.test(t) ? '' : t;
 }
 
-// language: a Whisper language name ('french', 'english'…) or empty to detect it
+// language: the Whisper name of the spoken language, or empty to detect it; task: 'transcribe' writes in that language,
+// 'translate' writes English (Whisper only translates to English)
 function decodeOptions() {
-	return language ? { language, task: 'transcribe' } : { task: 'transcribe' };
+	return language ? { language, task } : { task };
 }
 
 async function run(audio) {
@@ -304,6 +307,7 @@ self.onmessage = async ({ data }) => {
 	try {
 		if (data.type === 'init') {
 			language = data.language ? String(data.language) : '';
+			task = data.task === 'translate' ? 'translate' : 'transcribe';
 			modelUrls = data.modelUrls || {};
 			await load(data.model || 'auto');
 		} else if (data.type === 'audio') {

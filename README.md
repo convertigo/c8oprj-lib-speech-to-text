@@ -71,6 +71,12 @@ speaks, and the text is written in it:
 Avoid `'auto'` when you can: on short pieces of speech and real microphones, the small models often take an accent for
 English, and then write English while the user speaks another language. The `Ready` event gives the language used.
 
+### Translation to English
+
+With `task: 'translate'`, Whisper writes English whatever the spoken language, live like a transcription (provisional
+text, then validated sentences), with the same model and no extra download. Whisper translates to English only, and
+the translation stays literal; it is better with Small than with Base. Keep `language` set to the spoken language.
+
 English is recognised best, then the main European languages (good with Small, correct with Base); languages with
 little training data are much weaker with these small models.
 
@@ -85,6 +91,7 @@ model and one microphone, and each receives only the text of its own dictation.
 | --- | --- | --- |
 | `model` | `'auto'` | `'auto'`, `'base'` or `'small'` |
 | `language` | `''` | spoken language: empty for the browser language, an ISO code (`'fr'`), a Whisper name (`'french'`) or `'auto'` (see [Languages](#languages)) |
+| `task` | `'transcribe'` | `'transcribe'` writes in the spoken language, `'translate'` writes English |
 | `modelsUrl` | `'${lib_speechtotext.models.url=}'` | folder holding `onnx-community/<model>/`; empty: the model projects of the server |
 | `micProcessing` | `true` | echo cancellation, noise suppression and automatic gain of the browser; turn it off if words are cut or distorted |
 | `preload` | `true` | load the model when the component shows, or at the first click |
@@ -96,8 +103,8 @@ model and one microphone, and each receives only the text of its own dictation.
 | `Partial` | provisional text of the sentence in progress, several times per second |
 | `Final` | validated sentence, after each pause and at the stop |
 | `Done` | everything said before the stop is transcribed |
-| `Ready` | `{model, device, reason, loadMs, language}` |
-| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error, language}` |
+| `Ready` | `{model, device, reason, loadMs, language, task}` |
+| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error, language, task}` |
 | `Stats` | `{kind: 'partial' or 'final', ms, audioS}` for each transcription pass |
 | `Error` | message: microphone refused, model project not deployed, worker failure |
 
@@ -108,11 +115,11 @@ Typical use, dictation into a field: a `CustomAction` on `Final` with
 
 | Action | Variables | Result |
 | --- | --- | --- |
-| `speechToTextPreload_sa` | `model`, `language`, `modelsUrl` (same as the component) | loads the model in advance, resolves with `{model, device, reason, loadMs}` |
+| `speechToTextPreload_sa` | `model`, `language`, `task`, `modelsUrl` (same as the component) | loads the model in advance, resolves with `{model, device, reason, loadMs}` |
 | `speechToTextStop_sa` | | stops the microphone and resolves once the last sentence is transcribed |
 
 The `testSpeechToText` page preloads the model on `onWillEnter` and stops the microphone on `onWillLeave`. It also lets
-you choose the model and the language, shows the measured time of each pass, and fills a text area by dictation.
+you choose the model, the spoken language and the language of the text (spoken or English), shows the measured time of each pass, and fills a text area by dictation.
 
 ## How it works
 

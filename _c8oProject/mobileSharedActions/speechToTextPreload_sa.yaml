@@ -4,6 +4,9 @@ comment: Loads the speech-to-text model in advance (for example in the app's onA
   value: '''auto'''
 ↓language [ngx.components.UIStackVariable-1795533671980]: 
   comment: '<p>Language the user speaks: Whisper name or ISO code; empty: the language of the browser; ''auto'' to detect it. Give the same value as the speechToText_sc of the app</p><p><b>Example:</b> <code>''''</code></p>'
+↓task [ngx.components.UIStackVariable-1795542720108]: 
+  comment: <p>'transcribe' (text in the spoken language) or 'translate' (text in English). Give the same value as the speechToText_sc of the app</p><p><b>Example:</b> <code>'transcribe'</code></p>
+  value: '''transcribe'''
 ↓modelsUrl [ngx.components.UIStackVariable-1795533671982]: 
   comment: '<p>Folder holding onnx-community/whisper-base/ and whisper-small/; empty: the model projects deployed on the server of the app</p><p><b>Example:</b> <code>''''</code></p>'
 ↓preload [ngx.components.UICustomAction-1795533671984]: 
@@ -17,7 +20,7 @@ comment: Loads the speech-to-text model in advance (for example in the app's onA
           		const ep: string = (page as any).c8o?.endpointConvertigo || '''';
           		const lib = i > 0 ? b.substring(0, i) + path : (/^https?:/.test(ep) ? ep + path : new URL(''../../lib_SpeechToText_ui_ngx/DisplayObjects/stt/'', b).href);
           		import(/* @vite-ignore */ /* webpackIgnore: true */ lib + ''stt-engine.js'')
-          			.then((mod: any) => mod.speechToText().load({ model: vars.model, language: vars.language, modelsUrl: vars.modelsUrl }))
+          			.then((mod: any) => mod.speechToText().load({ model: vars.model, language: vars.language, task: vars.task, modelsUrl: vars.modelsUrl }))
           			.then((ready: any) => resolve(ready))
           			.catch((e: any) => reject(e));
           '
@@ -32,6 +35,11 @@ comment: Loads the speech-to-text model in advance (for example in the app's onA
       - xmlizable: 
         - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
         - MobileSmartSourceType: script:params.language
+  ↓task [ngx.components.UIControlVariable-1795542720574]: 
+    varValue: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+        - MobileSmartSourceType: script:params.task
   ↓modelsUrl [ngx.components.UIControlVariable-1795533672450]: 
     varValue: 
       - xmlizable: 

@@ -28,7 +28,7 @@ scriptContent:
         		if (this.sttEngine && this.sttMine && this.sttState.listening) { this.sttEngine.stop(false); }
         		/*End_c8o_CompFinalization*/
         /*Begin_c8o_CompChanges*/
-        		if (this.sttEngine && this.sttState.ready && (changes[''model''] || changes[''language''] || changes[''modelsUrl''])) {
+        		if (this.sttEngine && this.sttState.ready && (changes[''model''] || changes[''language''] || changes[''task''] || changes[''modelsUrl''])) {
         			this.sttLoad();
         		}
         		/*End_c8o_CompChanges*/
@@ -53,7 +53,7 @@ scriptContent:
         	}
         
         	public sttOptions(): any {
-        		return { model: this[''model''] || ''auto'', language: this[''language''] || '''', modelsUrl: this[''modelsUrl''] || '''', micProcessing: this[''micProcessing''] !== false && this[''micProcessing''] !== ''false'' };
+        		return { model: this[''model''] || ''auto'', language: this[''language''] || '''', task: this[''task''] === ''translate'' ? ''translate'' : ''transcribe'', modelsUrl: this[''modelsUrl''] || '''', micProcessing: this[''micProcessing''] !== false && this[''micProcessing''] !== ''false'' };
         	}
         
         	private sttRefresh() {
@@ -87,7 +87,7 @@ scriptContent:
         				this[''StateChanged''].emit(e.state);
         				break;
         			case ''ready'':
-        				this[''Ready''].emit({ model: e.model, device: e.device, reason: e.reason, loadMs: e.loadMs, language: e.language });
+        				this[''Ready''].emit({ model: e.model, device: e.device, reason: e.reason, loadMs: e.loadMs, language: e.language, task: e.task });
         				break;
         			case ''partial'':
         				if (e.owner === this.sttId) { this[''Partial''].emit(e.text); }
@@ -150,6 +150,9 @@ scriptContent:
   value: '''auto'''
 ↓language [ngx.components.UICompVariable-1795533642836]: 
   comment: '<p>Language the user speaks: a Whisper name (''french'', ''english''...) or an ISO code (''fr'', ''en-US''). Empty: the language of the browser. ''auto'': Whisper detects it at each pass (on short pieces of speech it often takes an accent for English and then writes English)</p><p><b>Example:</b> <code>''fr''</code></p>'
+↓task [ngx.components.UICompVariable-1795542719642]: 
+  comment: <p>'transcribe' writes the text in the spoken language; 'translate' writes it in English whatever the spoken language (Whisper only translates to English; same model, no extra download)</p><p><b>Example:</b> <code>'translate'</code></p>
+  value: '''transcribe'''
 ↓modelsUrl [ngx.components.UICompVariable-1795533642838]: 
   comment: '<p>URL of a folder holding onnx-community/whisper-base/ and onnx-community/whisper-small/. Empty: the model projects lib_SpeechToText_model_whisperBase and lib_SpeechToText_model_whisperSmall deployed on the server of the app</p><p><b>Example:</b> <code>''https://cdn.example.com/models/''</code></p>'
   value: '''${lib_speechtotext.models.url=}'''
@@ -175,7 +178,7 @@ scriptContent:
   comment: Fired once everything said before the stop has been transcribed.
 ↓Ready [ngx.components.UICompEvent-1795533642854]: 
   attrName: Ready
-  comment: 'Model loaded: {model, device, reason, loadMs, language} (language: the Whisper name used, ''auto'' when detected).'
+  comment: 'Model loaded: {model, device, reason, loadMs, language, task} (language: the Whisper name of the spoken language, ''auto'' when detected; task: ''transcribe'' or ''translate'').'
 ↓StateChanged [ngx.components.UICompEvent-1795533642856]: 
   attrName: StateChanged
   comment: 'Every state change of the engine: {status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error}.'
