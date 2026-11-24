@@ -1,0 +1,25 @@
+↑convertigo: 8.4.0.m006
+↓lib_SpeechToText_ui_ngx [core.Project]: 
+  comment: |
+    'Offline speech-to-text for NGX apps: Whisper runs in the browser (Web Worker, WebGPU or WebAssembly), the audio never leaves the device.
+    
+    - speechToText_sc: microphone button giving the provisional text while the user speaks (Partial) and each validated sentence (Final)
+    - speechToTextPreload_sa: loads the model in advance
+    - speechToTextStop_sa: stops the microphone and waits for the last sentence
+    
+    Deploy the model projects lib_SpeechToText_model_whisperBase (every device) and lib_SpeechToText_model_whisperSmall (computers with WebGPU) on the same server, or set the global symbol lib_speechtotext.models.url. Example page: testSpeechToText.'
+  contextTimeout: 59
+  corsOrigin: =Origin
+  httpSessionTimeout: 60
+  version: 8.4.0.1
+  ↓void [connectors.SqlConnector]: 🗏 connectors/void.yaml
+  ↓project1 [references.ProjectSchemaReference]: 
+    projectName: mobilebuilder_tpl_8_4_0_ngx=https://github.com/convertigo/c8oprj-mobilebuilder-tpl/archive/mobilebuilder_tpl_8_4_0_ngx.zip
+  ↓Application [core.MobileApplication]: 
+    comment: Describes the mobile application global properties
+    splashRemoveMode: beforeUpdate
+    ↓Android [mobileplatforms.Android]: 
+      comment: Android platform
+    ↓iOS [mobileplatforms.IOs]: 
+      comment: iOS platform
+    ↓NgxApp [ngx.components.ApplicationComponent]: 🗏 mobileNgxApp.yaml

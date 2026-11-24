@@ -1,0 +1,453 @@
+comment: |
+  'Microphone button for offline speech-to-text: Whisper runs in the browser (Web Worker; WebGPU or WebAssembly), the audio never leaves the device.
+  While the user speaks, Partial gives the provisional text of the sentence in progress; after each pause Final gives the validated sentence.
+  The model comes from the model projects lib_SpeechToText_model_whisperBase / lib_SpeechToText_model_whisperSmall deployed on the same server, or from modelsUrl.
+  One engine per browser tab: every speechToText_sc shares the same model and microphone.'
+scriptContent: 
+  - xmlizable: 
+    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+      →: |
+        '/*Begin_c8o_CompImport*/
+        declare var window: any;
+        /*End_c8o_CompImport*/
+        /*Begin_c8o_CompDeclaration*/
+        	public sttState: any = { status: ''idle'', ready: false, loading: false, listening: false, finishing: false, speaking: false, level: 0, progress: 0, error: '''' };
+        	public sttMine: boolean = false;
+        	public sttEngine: any = null;
+        	private sttOff: any = null;
+        	private sttId: string = ''stt-'' + Math.random().toString(36).substring(2);
+        	/*End_c8o_CompDeclaration*/
+        /*Begin_c8o_CompConstructor*/
+        		/*End_c8o_CompConstructor*/
+        /*Begin_c8o_CompInitialization*/
+        		this.sttInit();
+        		/*End_c8o_CompInitialization*/
+        /*Begin_c8o_CompFinalization*/
+        		if (this.sttOff) { this.sttOff(); this.sttOff = null; }
+        		if (this.sttEngine && this.sttMine && this.sttState.listening) { this.sttEngine.stop(false); }
+        		/*End_c8o_CompFinalization*/
+        /*Begin_c8o_CompChanges*/
+        		if (this.sttEngine && this.sttState.ready && (changes[''model''] || changes[''language''] || changes[''modelsUrl''])) {
+        			this.sttLoad();
+        		}
+        		/*End_c8o_CompChanges*/
+        /*Begin_c8o_CompDoCheck*/
+        		/*End_c8o_CompDoCheck*/
+        /*Begin_c8o_CompAfterContentInit*/
+        		/*End_c8o_CompAfterContentInit*/
+        /*Begin_c8o_CompAfterContentChecked*/
+        		/*End_c8o_CompAfterContentChecked*/
+        /*Begin_c8o_CompAfterViewInit*/
+        		/*End_c8o_CompAfterViewInit*/
+        /*Begin_c8o_CompAfterViewChecked*/
+        		/*End_c8o_CompAfterViewChecked*/
+        /*Begin_c8o_CompFunction*/
+        	// URL of the library files (DisplayObjects/stt of lib_SpeechToText_ui_ngx) on the Convertigo server of the app
+        	public sttLibUrl(): string {
+        		const path = ''/projects/lib_SpeechToText_ui_ngx/DisplayObjects/stt/'';
+        		const b = document.baseURI, i = b.indexOf(''/projects/'');
+        		if (i > 0) { return b.substring(0, i) + path; }
+        		const ep: string = (this as any).c8o?.endpointConvertigo || '''';
+        		return /^https?:/.test(ep) ? ep + path : new URL(''../../lib_SpeechToText_ui_ngx/DisplayObjects/stt/'', b).href;
+        	}
+        
+        	public sttOptions(): any {
+        		return { model: this[''model''] || ''auto'', language: this[''language''] || '''', modelsUrl: this[''modelsUrl''] || '''', micProcessing: this[''micProcessing''] !== false && this[''micProcessing''] !== ''false'' };
+        	}
+        
+        	private sttRefresh() {
+        		const ref: any = (this as any).ref;
+        		try { ref?.markForCheck?.(); ref?.detectChanges?.(); } catch (e) { }
+        	}
+        
+        	private async sttInit() {
+        		try {
+        			const url = this.sttLibUrl() + ''stt-engine.js'';
+        			const mod: any = await import(/* @vite-ignore */ /* webpackIgnore: true */ url);
+        			this.sttEngine = mod.speechToText();
+        			this.sttOff = this.sttEngine.on((e: any) => this.sttOnEvent(e));
+        			if (this[''preload''] !== false && this[''preload''] !== ''false'') { this.sttLoad(); }
+        		} catch (e) {
+        			this.sttState = { ...this.sttState, status: ''error'', error: ''Cannot load lib_SpeechToText_ui_ngx from '' + this.sttLibUrl() + '': '' + (e?.message || e) };
+        			this[''Error''].emit(this.sttState.error);
+        			this.sttRefresh();
+        		}
+        	}
+        
+        	private sttLoad() {
+        		this.sttEngine.load(this.sttOptions()).catch(() => { /* reported by the error event */ });
+        	}
+        
+        	private sttOnEvent(e: any) {
+        		switch (e.type) {
+        			case ''state'':
+        				this.sttState = e.state;
+        				this.sttMine = e.state.owner === this.sttId;
+        				this[''StateChanged''].emit(e.state);
+        				break;
+        			case ''ready'':
+        				this[''Ready''].emit({ model: e.model, device: e.device, reason: e.reason, loadMs: e.loadMs });
+        				break;
+        			case ''partial'':
+        				if (e.owner === this.sttId) { this[''Partial''].emit(e.text); }
+        				break;
+        			case ''final'':
+        				if (e.owner === this.sttId && e.text) { this[''Final''].emit(e.text); }
+        				break;
+        			case ''done'':
+        				if (e.owner === this.sttId) { this[''Done''].emit(true); }
+        				break;
+        			case ''stats'':
+        				this[''Stats''].emit({ kind: e.kind, ms: e.ms, audioS: e.audioS });
+        				break;
+        			case ''error'':
+        				if (!e.owner || e.owner === this.sttId) { this[''Error''].emit(e.message); }
+        				break;
+        		}
+        		this.sttRefresh();
+        	}
+        
+        	// Starts or stops the microphone (the button calls it; also usable from a page through a ViewChild)
+        	public async sttToggle() {
+        		if (!this.sttEngine) { return; }
+        		if (this.sttState.listening && this.sttMine) {
+        			this.sttEngine.stop(false);
+        			return;
+        		}
+        		try {
+        			await this.sttEngine.start(this.sttId, this.sttOptions());
+        		} catch (e) { /* reported by the error event */ }
+        	}
+        
+        	public sttActive(): boolean {
+        		return this.sttState.listening && this.sttMine;
+        	}
+        
+        	public sttBusy(): boolean {
+        		const s = this.sttState;
+        		return !this.sttEngine || s.loading || (s.finishing && this.sttMine) || (s.status === ''error'' && !s.ready);
+        	}
+        
+        	// width of the level meter, from the voice level the worker measures
+        	public sttLevel(): string {
+        		return ''scaleX('' + (this.sttActive() ? Math.max(0.03, Math.min(1, this.sttState.level || 0)) : 0) + '')'';
+        	}
+        
+        	public sttStatusText(): string {
+        		const s = this.sttState;
+        		if (s.error && s.status === ''error'') { return s.error; }
+        		if (s.loading) { return ''Loading the speech model… '' + (s.progress || 0) + '' %''; }
+        		if (this.sttActive()) { return s.speaking ? ''Listening…'' : ''Waiting for speech…''; }
+        		if (s.finishing && this.sttMine) { return ''Transcribing…''; }
+        		if (s.listening) { return ''Microphone in use by another field''; }
+        		return s.ready ? ''Ready'' : '''';
+        	}
+        	/*End_c8o_CompFunction*/
+        '
+↓model [ngx.components.UICompVariable-1795533642834]: 
+  comment: '<p>Model: ''auto'' (Whisper small on a computer with WebGPU, Whisper base elsewhere), ''base'' or ''small''</p><p><b>Example:</b> <code>''auto''</code></p>'
+  value: '''auto'''
+↓language [ngx.components.UICompVariable-1795533642836]: 
+  comment: '<p>Spoken language, as a Whisper language name (''english'', ''french'', ''spanish'', ''german''...); empty to detect it at each pass. Give it when you know it: more reliable and a bit faster</p><p><b>Example:</b> <code>''english''</code></p>'
+↓modelsUrl [ngx.components.UICompVariable-1795533642838]: 
+  comment: '<p>URL of a folder holding onnx-community/whisper-base/ and onnx-community/whisper-small/. Empty: the model projects lib_SpeechToText_model_whisperBase and lib_SpeechToText_model_whisperSmall deployed on the server of the app</p><p><b>Example:</b> <code>''https://cdn.example.com/models/''</code></p>'
+  value: '''${lib_speechtotext.models.url=}'''
+↓micProcessing [ngx.components.UICompVariable-1795533642840]: 
+  comment: <p>Keep the echo cancellation, noise suppression and automatic gain of the browser on the microphone. Turn it off if words are cut or distorted</p><p><b>Example:</b> <code>true</code></p>
+  value: true
+↓preload [ngx.components.UICompVariable-1795533642842]: 
+  comment: <p>Load the model as soon as the component shows (true), or at the first click (false)</p><p><b>Example:</b> <code>true</code></p>
+  value: true
+↓showStatus [ngx.components.UICompVariable-1795533642844]: 
+  comment: <p>Show the state (loading, listening, errors) next to the button</p><p><b>Example:</b> <code>true</code></p>
+  value: true
+↓label [ngx.components.UICompVariable-1795533642846]: 
+  comment: <p>Text of the button next to the microphone icon; empty for an icon-only button</p><p><b>Example:</b> <code>'Dictate'</code></p>
+↓Partial [ngx.components.UICompEvent-1795533642848]: 
+  attrName: Partial
+  comment: Provisional text of the sentence in progress (string), several times per second while the user speaks.
+↓Final [ngx.components.UICompEvent-1795533642850]: 
+  attrName: Final
+  comment: Validated sentence (string), after each pause and when the microphone stops.
+↓Done [ngx.components.UICompEvent-1795533642852]: 
+  attrName: Done
+  comment: Fired once everything said before the stop has been transcribed.
+↓Ready [ngx.components.UICompEvent-1795533642854]: 
+  attrName: Ready
+  comment: 'Model loaded: {model, device, reason, loadMs}.'
+↓StateChanged [ngx.components.UICompEvent-1795533642856]: 
+  attrName: StateChanged
+  comment: 'Every state change of the engine: {status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error}.'
+↓Error [ngx.components.UICompEvent-1795533642858]: 
+  attrName: Error
+  comment: 'Error message (string): microphone refused, model project not deployed, worker failure.'
+↓Stats [ngx.components.UICompEvent-1795533705099]: 
+  attrName: Stats
+  comment: 'Time of each transcription pass: {kind: ''partial'' or ''final'', ms, audioS}.'
+↓Root [ngx.components.UIDynamicElement-1795539860771]: 
+  beanData: '{"ionBean":"DivTag"}'
+  comment: Microphone button with its halo, then the level meter and the state
+  tagName: div
+  ↓Class [ngx.components.UIAttribute-1795539861807]: 
+    attrName: class
+    attrValue: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+        - MobileSmartSourceType: plain:stt-sc
+  ↓Active [ngx.components.UIAttribute-1795539861809]: 
+    attrName: '[class.stt-sc--active]'
+    attrValue: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+        - MobileSmartSourceType: script:sttActive()
+  ↓Speaking [ngx.components.UIAttribute-1795539861811]: 
+    attrName: '[class.stt-sc--speaking]'
+    attrValue: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+        - MobileSmartSourceType: script:sttActive() && sttState.speaking
+  ↓IconOnly [ngx.components.UIAttribute-1795539861813]: 
+    attrName: '[class.stt-sc--icon]'
+    attrValue: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+        - MobileSmartSourceType: script:!label
+  ↓Halo [ngx.components.UIDynamicElement-1795539861815]: 
+    beanData: '{"ionBean":"DivTag"}'
+    comment: Pulses around the button while listening
+    tagName: div
+    ↓Class [ngx.components.UIAttribute-1795539861817]: 
+      attrName: class
+      attrValue: 
+        - xmlizable: 
+          - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+          - MobileSmartSourceType: plain:stt-sc__halo
+    ↓MicButton [ngx.components.UIDynamicElement-1795539861819]: 
+      beanData: |
+        '{
+         "ionBean": "Button",
+         "ButtonFormType": "plain:button",
+         "Disabled": "script:sttBusy()",
+         "IonColor": "script:sttActive() ? ''danger'' : ''primary''",
+         "IonExpand": "plain",
+         "IonShape": "plain:round",
+         "IonFill": "plain",
+         "IonSize": "plain",
+         "IconSlot": "plain",
+         "IonMode": "plain",
+         "IonStrong": "plain",
+         "LinkUrl": "plain",
+         "LinkDownload": "plain",
+         "LinkTarget": "plain",
+         "LinkRel": "plain",
+         "LinkRouterPath": "plain",
+         "LinkRouterData": "plain",
+         "LinkRouterDirection": "plain"
+        }'
+      comment: Starts or stops the microphone
+      tagName: ion-button
+      ↓Class [ngx.components.UIAttribute-1795539861821]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:stt-sc__button
+      ↓Click [ngx.components.UIAttribute-1795539861823]: 
+        attrName: (click)
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:sttToggle()
+      ↓AriaLabel [ngx.components.UIAttribute-1795539861825]: 
+        attrName: '[attr.aria-label]'
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: 'script:sttActive() ? ''Stop dictation'' : ''Start dictation'''
+      ↓MicIcon [ngx.components.UIDynamicElement-1795539861827]: 
+        beanData: |
+          '{
+           "ionBean": "Icon",
+           "IonColor": "plain",
+           "IconName": "script:sttActive() ? ''stop'' : ''mic''",
+           "IconMdName": "source",
+           "IconIosName": "source",
+           "IonSize": "plain",
+           "IconSlot": "script:label ? ''start'' : ''icon-only''",
+           "IconSource": "plain"
+          }'
+        tagName: ion-icon
+      ↓Label [ngx.components.UIText-1795539861829]: 
+        textValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: script:label || ''
+  ↓Meta [ngx.components.UIDynamicElement-1795539861831]: 
+    beanData: '{"ionBean":"DivTag"}'
+    comment: Level meter and state
+    tagName: div
+    ↓Class [ngx.components.UIAttribute-1795539861833]: 
+      attrName: class
+      attrValue: 
+        - xmlizable: 
+          - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+          - MobileSmartSourceType: plain:stt-sc__meta
+    ↓Meter [ngx.components.UIDynamicElement-1795539861835]: 
+      beanData: '{"ionBean":"DivTag"}'
+      tagName: div
+      ↓Class [ngx.components.UIAttribute-1795539861837]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:stt-sc__meter
+      ↓Level [ngx.components.UIDynamicElement-1795539861839]: 
+        beanData: '{"ionBean":"DivTag"}'
+        tagName: div
+        ↓Class [ngx.components.UIAttribute-1795539861841]: 
+          attrName: class
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: plain:stt-sc__level
+        ↓Width [ngx.components.UIAttribute-1795539861843]: 
+          attrName: '[style.transform]'
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: script:sttLevel()
+    ↓Status [ngx.components.UIDynamicElement-1795539861845]: 
+      beanData: '{"ionBean":"DivTag"}'
+      tagName: div
+      ↓Class [ngx.components.UIAttribute-1795539861847]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:stt-sc__status
+      ↓Error [ngx.components.UIAttribute-1795539861849]: 
+        attrName: '[class.stt-sc__status--error]'
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: script:sttState.status === 'error'
+      ↓Hidden [ngx.components.UIAttribute-1795539861851]: 
+        attrName: '[hidden]'
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: script:showStatus === false || showStatus === 'false'
+      ↓Text [ngx.components.UIText-1795539861853]: 
+        textValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: script:sttStatusText()
+↓Style [ngx.components.UIStyle-1795539862925]: 
+  comment: 'Look of speechToText_sc: round button, pulsing halo while listening, level meter'
+  styleContent: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+      - com.twinsoft.convertigo.beans.common.FormatedContent: 
+        →: |
+          ':host {
+          	display: inline-block;
+          	max-width: 100%;
+          	vertical-align: middle;
+          }
+          
+          .stt-sc {
+          	display: inline-flex;
+          	align-items: center;
+          	gap: 14px;
+          	max-width: 100%;
+          }
+          
+          .stt-sc__halo {
+          	position: relative;
+          	display: inline-flex;
+          	border-radius: 999px;
+          	flex: none;
+          }
+          
+          .stt-sc__halo::after {
+          	content: '''';
+          	position: absolute;
+          	inset: -3px;
+          	border-radius: 999px;
+          	border: 2px solid var(--ion-color-danger, #eb445a);
+          	opacity: 0;
+          	pointer-events: none;
+          }
+          
+          .stt-sc--active .stt-sc__halo::after {
+          	animation: stt-sc-pulse 1.6s ease-out infinite;
+          }
+          
+          .stt-sc--speaking .stt-sc__halo::after {
+          	animation-duration: 0.8s;
+          }
+          
+          @keyframes stt-sc-pulse {
+          	from { transform: scale(1); opacity: 0.75; }
+          	to { transform: scale(1.4); opacity: 0; }
+          }
+          
+          .stt-sc__button {
+          	margin: 0;
+          	--border-radius: 999px;
+          	--box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          	text-transform: none;
+          	font-weight: 600;
+          }
+          
+          .stt-sc--icon .stt-sc__button {
+          	box-sizing: border-box;
+          	width: 56px;
+          	height: 56px;
+          	min-height: 0;
+          	--padding-start: 0;
+          	--padding-end: 0;
+          	--padding-top: 0;
+          	--padding-bottom: 0;
+          	font-size: 22px;
+          }
+          
+          .stt-sc__meta {
+          	display: flex;
+          	flex-direction: column;
+          	gap: 6px;
+          	min-width: 0;
+          }
+          
+          .stt-sc__meter {
+          	width: 120px;
+          	height: 4px;
+          	border-radius: 2px;
+          	overflow: hidden;
+          	background: rgba(127, 127, 127, 0.25);
+          	opacity: 0;
+          	transition: opacity 0.2s;
+          }
+          
+          .stt-sc--active .stt-sc__meter {
+          	opacity: 1;
+          }
+          
+          .stt-sc__level {
+          	height: 100%;
+          	background: var(--ion-color-success, #2dd36f);
+          	transform-origin: left center;
+          	transition: transform 0.1s linear;
+          }
+          
+          .stt-sc__status {
+          	font-size: 13px;
+          	line-height: 1.3;
+          	color: var(--ion-color-medium, #92949c);
+          }
+          
+          .stt-sc__status--error {
+          	color: var(--ion-color-danger, #eb445a);
+          }
+          '

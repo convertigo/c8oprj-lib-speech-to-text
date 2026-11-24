@@ -1,0 +1,1541 @@
+↑isRoot: true
+comment: 'Examples of speechToText_sc: live transcription with the model choice and measures, and dictation into a text field'
+icon: mic
+preloadPriority: high
+scriptContent: 
+  - xmlizable: 
+    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+      →: |
+        /*Begin_c8o_PageImport*/
+        /*End_c8o_PageImport*/
+        /*Begin_c8o_PageDeclaration*/
+        	/*End_c8o_PageDeclaration*/
+        /*Begin_c8o_PageConstructor*/
+        		/*End_c8o_PageConstructor*/
+        /*Begin_c8o_PageFunction*/
+        	/*End_c8o_PageFunction*/
+        
+segment: test-speech-to-text
+title: Speech to text
+↓OnEnter [ngx.components.UIPageEvent-1795533918511]: 
+  comment: Loads the model before the user presses a button
+  viewEvent: onWillEnter
+  ↓PreloadSpeech [ngx.components.UIDynamicInvoke-1795533918965]: 
+    beanData: '{"ionBean":"InvokeAction"}'
+    comment: 'Same model as the speechToText_sc of the page (defaults: auto, french, models of this server)'
+    stack: lib_SpeechToText_ui_ngx.Application.NgxApp.speechToTextPreload_sa
+↓OnLeave [ngx.components.UIPageEvent-1795533903155]: 
+  comment: Stops the microphone when the user leaves the page
+  viewEvent: onWillLeave
+  ↓StopSpeech [ngx.components.UIDynamicInvoke-1795533914218]: 
+    beanData: '{"ionBean":"InvokeAction"}'
+    comment: Stops any dictation in progress
+    stack: lib_SpeechToText_ui_ngx.Application.NgxApp.speechToTextStop_sa
+↓Header [ngx.components.UIDynamicElement-1795533500747]: 
+  beanData: |
+    '{
+     "ionBean": "Header",
+     "IonMode": "plain",
+     "Collapse": "plain",
+     "Translucent": "plain:false"
+    }'
+  comment: Top page header container
+  tagName: ion-header
+  ↓ToolBar [ngx.components.UIDynamicElement-1795533500748]: 
+    beanData: |
+      '{
+       "ionBean": "ToolBar",
+       "IonColor": "plain",
+       "BarMode": "plain",
+       "BarSlot": "plain"
+      }'
+    comment: Main toolbar displayed in the header
+    tagName: ion-toolbar
+    ↓ButtonSet1 [ngx.components.UIDynamicElement-1795533500749]: 
+      beanData: |
+        '{
+         "ionBean": "ButtonSet",
+         "SetPosition": "plain:start",
+         "Collapse": "plain:false"
+        }'
+      comment: Left toolbar button group
+      tagName: ion-buttons
+      ↓BackButton [ngx.components.UIDynamicElement-1795533500750]: 
+        beanData: |
+          '{
+           "ionBean": "BackButton",
+           "ButtonFormType": "plain:button",
+           "Disabled": "plain:false",
+           "IonColor": "plain",
+           "IonIcon": "plain",
+           "IonMode": "plain",
+           "ButtonText": "plain",
+           "DefaultHref": "plain"
+          }'
+        comment: Navigates to the previous page when available
+        tagName: ion-back-button
+      ↓MenuButton [ngx.components.UIDynamicElement-1795533500751]: 
+        beanData: |
+          '{
+           "ionBean": "MenuButton",
+           "ButtonFormType": "plain:button",
+           "Disabled": "plain:false",
+           "IonColor": "plain",
+           "AutoHide": "plain:true",
+           "MenuId": "plain"
+          }'
+        comment: Toggles the side navigation menu
+        tagName: ion-menu-button
+    ↓BarTitle [ngx.components.UIDynamicElement-1795533500752]: 
+      beanData: |
+        '{
+         "ionBean": "BarTitle",
+         "IonColor": "plain",
+         "IonSize": "plain"
+        }'
+      comment: Title container displayed in the toolbar
+      tagName: ion-title
+      ↓Text [ngx.components.UIText-1795533500753]: 
+        comment: Page title
+        textValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:Speech to text
+    ↓ButtonSet2 [ngx.components.UIDynamicElement-1795533500754]: 
+      beanData: |
+        '{
+         "ionBean": "ButtonSet",
+         "SetPosition": "plain:end",
+         "Collapse": "plain:false"
+        }'
+      comment: Right toolbar button group
+      tagName: ion-buttons
+      ↓ThemeSwitchButton [ngx.components.UIDynamicElement-1795533500755]: 
+        beanData: '{"ionBean":"Button","IonFill":"plain:clear"}'
+        comment: Toggles between light and dark themes
+        tagName: ion-button
+        ↓Class [ngx.components.UIAttribute-1795533500756]: 
+          attrName: class
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: plain:toolbar-theme-button
+          comment: CSS class used to style the theme button
+        ↓Aria [ngx.components.UIAttribute-1795533500757]: 
+          attrName: aria-label
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: 'script:(this.global && this.global.themeDark) ? this.translate.instant(''Theme_Switch_To_Light'') : this.translate.instant(''Theme_Switch_To_Dark'')'
+          comment: Accessibility label describing the next theme action
+        ↓Event [ngx.components.UIControlEvent-1795533500758]: 
+          comment: Click handler for theme switching
+          ↓SetTheme [ngx.components.UIDynamicAction-1795533500759]: 
+            beanData: '{"ionBean":"SetThemeAction","dark":"script:!(this.global && this.global.themeDark)"}'
+            comment: Applies the opposite theme mode
+        ↓ThemeIcon [ngx.components.UIDynamicElement-1795533500760]: 
+          beanData: |
+            '{
+             "ionBean": "Icon",
+             "IonColor": "plain",
+             "IconName": "script:this?.global?.themeDark ? ''sunny-outline'' : ''moon-outline''",
+             "IconMdName": "source",
+             "IconIosName": "source",
+             "IonSize": "plain",
+             "IconSlot": "plain",
+             "IconSource": "plain"
+            }'
+          comment: Dynamic icon reflecting the active theme
+          tagName: ion-icon
+          ↓IconName [ngx.components.UIAttribute-1795533500761]: 
+            attrName: '[name]'
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: 'script:(this.global && this.global.themeDark) ? ''sunny-outline'' : ''moon-outline'''
+            comment: Binds the icon name to the current theme state
+      ↓LanguageSelector [ngx.components.UIDynamicElement-1795533500762]: 
+        beanData: |
+          '{
+           "ionBean": "Select",
+           "ControlName": "plain:name1770915137820",
+           "Justify": "plain:start"
+          }'
+        comment: Language selector displayed in the toolbar
+        tagName: ion-select
+        ↓Class [ngx.components.UIAttribute-1795533500763]: 
+          attrName: class
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: plain:toolbar-lang-select
+          comment: CSS class used to style the language selector
+        ↓Aria [ngx.components.UIAttribute-1795533500764]: 
+          attrName: aria-label
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: script:'Language' | translate
+          comment: Accessibility label for language selection
+        ↓Interface [ngx.components.UIAttribute-1795533500765]: 
+          attrName: '[interface]'
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: script:'popover'
+          comment: Uses popover mode for option rendering
+        ↓Value [ngx.components.UIAttribute-1795533500766]: 
+          attrName: '[value]'
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: script:this.global?.currentLanguage?.() ?? 'en'
+          comment: Current selected language bound to global state
+        ↓SelectedText [ngx.components.UIAttribute-1795533500767]: 
+          attrName: '[selectedText]'
+          attrValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: script:(this.global?.getLanguageLabelKey?.() ??  'Lang_English') | translate
+          comment: Localized label shown for the selected language
+        ↓ChangeEvent [ngx.components.UIControlEvent-1795533500768]: 
+          attrName: (ionChange)
+          comment: Triggered when the selected language changes
+          eventName: ionChange
+          ↓SetLanguage [ngx.components.UIDynamicAction-1795533500769]: 
+            beanData: |
+              '{
+               "ionBean": "SetLanguageAction",
+               "language": "script:event.detail.value",
+               "storageKey": "plain:c8o-lang",
+               "globalProperty": "plain:currentLanguage"
+              }'
+            comment: Persists and applies the selected language
+        ↓LangEN [ngx.components.UIDynamicElement-1795533500770]: 
+          beanData: |
+            '{
+             "ionBean": "SelectOption",
+             "Disabled": "plain:false",
+             "Value": "plain:en"
+            }'
+          comment: English language option
+          tagName: ion-select-option
+          ↓Text [ngx.components.UIText-1795533500771]: 
+            comment: Translation key for the English option label
+            i18n: true
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Lang_English
+        ↓LangFR [ngx.components.UIDynamicElement-1795533500772]: 
+          beanData: |
+            '{
+             "ionBean": "SelectOption",
+             "Disabled": "plain:false",
+             "Value": "plain:fr"
+            }'
+          comment: French language option
+          tagName: ion-select-option
+          ↓Text [ngx.components.UIText-1795533500773]: 
+            comment: Translation key for the French option label
+            i18n: true
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Lang_French
+        ↓LangIT [ngx.components.UIDynamicElement-1795533500774]: 
+          beanData: |
+            '{
+             "ionBean": "SelectOption",
+             "Disabled": "plain:false",
+             "Value": "plain:it"
+            }'
+          comment: Italian language option
+          tagName: ion-select-option
+          ↓Text [ngx.components.UIText-1795533500775]: 
+            comment: Translation key for the Italian option label
+            i18n: true
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Lang_Italian
+        ↓LangES [ngx.components.UIDynamicElement-1795533500776]: 
+          beanData: |
+            '{
+             "ionBean": "SelectOption",
+             "Disabled": "plain:false",
+             "Value": "plain:es"
+            }'
+          comment: Spanish language option
+          tagName: ion-select-option
+          ↓Text [ngx.components.UIText-1795533500777]: 
+            comment: Translation key for the Spanish option label
+            i18n: true
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Lang_Spanish
+↓Content [ngx.components.UIDynamicElement-1795533500778]: 
+  beanData: |
+    '{
+     "ionBean": "Content",
+     "IonColor": "plain",
+     "IonSlot": "plain",
+     "Padding": "plain:ion-padding",
+     "Fullscreen": "plain:false",
+     "ForceOverScroll": "plain:false",
+     "ScrollEvents": "plain:false",
+     "ScrollX": "plain:false",
+     "ScrollY": "plain:true"
+    }'
+  comment: Main scrollable content area for the home page
+  tagName: ion-content
+  ↓Layout [ngx.components.UIDynamicElement-1795539918972]: 
+    beanData: '{"ionBean":"DivTag"}'
+    comment: Centered column of the examples
+    tagName: div
+    ↓Class [ngx.components.UIAttribute-1795539918974]: 
+      attrName: class
+      attrValue: 
+        - xmlizable: 
+          - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+          - MobileSmartSourceType: plain:demo
+    ↓Intro [ngx.components.UIDynamicElement-1795539918976]: 
+      beanData: '{"ionBean":"DivTag"}'
+      comment: Title and presentation of the example
+      tagName: div
+      ↓Class [ngx.components.UIAttribute-1795539918978]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:demo-intro
+      ↓Title [ngx.components.UIDynamicElement-1795539918980]: 
+        beanData: '{"ionBean":"Heading1"}'
+        tagName: h1
+        ↓Text [ngx.components.UIText-1795539918982]: 
+          textValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: plain:Offline speech to text
+      ↓Lead [ngx.components.UIDynamicElement-1795539918984]: 
+        beanData: '{"ionBean":"Paragraph"}'
+        tagName: p
+        ↓Text [ngx.components.UIText-1795539918986]: 
+          textValue: 
+            - xmlizable: 
+              - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+              - MobileSmartSourceType: 'plain:Whisper runs in your browser: the audio never leaves this device. Pick a model and a language, press the microphone and speak.'
+    ↓SettingsCard [ngx.components.UIDynamicElement-1795539918988]: 
+      beanData: |
+        '{
+         "ionBean": "Card",
+         "Button": "plain:false",
+         "ButtonFormType": "plain:button",
+         "Disabled": "plain:false",
+         "IonColor": "plain",
+         "IonMode": "plain",
+         "LinkUrl": "plain",
+         "LinkDownload": "plain",
+         "LinkTarget": "plain",
+         "LinkRel": "plain",
+         "LinkRouterPath": "plain",
+         "LinkRouterData": "plain",
+         "LinkRouterAnimation": "plain",
+         "LinkRouterDirection": "plain"
+        }'
+      comment: Model and language of the examples
+      tagName: ion-card
+      ↓Class [ngx.components.UIAttribute-1795539918990]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:demo-card
+      ↓CardHeader [ngx.components.UIDynamicElement-1795539918992]: 
+        beanData: |
+          '{
+           "ionBean": "CardHeader",
+           "IonColor": "plain",
+           "IonMode": "plain",
+           "Translucent": "plain:false"
+          }'
+        tagName: ion-card-header
+        ↓CardTitle [ngx.components.UIDynamicElement-1795539918994]: 
+          beanData: |
+            '{
+             "ionBean": "CardTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-title
+          ↓Text [ngx.components.UIText-1795539918996]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Settings
+        ↓CardSubtitle [ngx.components.UIDynamicElement-1795539918998]: 
+          beanData: |
+            '{
+             "ionBean": "CardSubTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-subtitle
+          ↓Text [ngx.components.UIText-1795539919000]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Applied to both examples below
+      ↓CardContent [ngx.components.UIDynamicElement-1795539919002]: 
+        beanData: '{"ionBean":"CardContent","IonMode":"plain"}'
+        tagName: ion-card-content
+        ↓Grid [ngx.components.UIDynamicElement-1795539919004]: 
+          beanData: '{"ionBean":"DivTag"}'
+          tagName: div
+          ↓Class [ngx.components.UIAttribute-1795539919006]: 
+            attrName: class
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:demo-settings
+          ↓ModelField [ngx.components.UIDynamicElement-1795539919008]: 
+            beanData: '{"ionBean":"DivTag"}'
+            tagName: div
+            ↓Class [ngx.components.UIAttribute-1795539919010]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-field
+            ↓ModelLabel [ngx.components.UIDynamicElement-1795539919012]: 
+              beanData: '{"ionBean":"DivTag"}'
+              tagName: div
+              ↓Class [ngx.components.UIAttribute-1795539919014]: 
+                attrName: class
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:demo-label
+              ↓Text [ngx.components.UIText-1795539919016]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Model
+            ↓ModelSegment [ngx.components.UIDynamicElement-1795539919018]: 
+              beanData: |
+                '{
+                 "ionBean": "Segment",
+                 "Disabled": "plain:false",
+                 "ControlName": "plain:name1795539919018",
+                 "DoubleBinding": "plain",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Scrollable": "plain:false",
+                 "SelectOnFocus": "plain:false",
+                 "SwipeGesture": "plain:true",
+                 "Value": "plain"
+                }'
+              comment: Model passed to both speechToText_sc
+              tagName: ion-segment
+              ↓Value [ngx.components.UIAttribute-1795539919020]: 
+                attrName: '[value]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.model || 'auto'
+              ↓Change [ngx.components.UIAttribute-1795539919022]: 
+                attrName: (ionChange)
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:local.model = $event.detail.value
+              ↓Disabled [ngx.components.UIAttribute-1795539919024]: 
+                attrName: '[disabled]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!!(local?.state?.listening || local?.state?.loading)
+              ↓Auto [ngx.components.UIDynamicElement-1795539919026]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795539919028]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:auto
+                ↓Text [ngx.components.UIText-1795539919030]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Auto
+              ↓Base [ngx.components.UIDynamicElement-1795539919032]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795539919034]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:base
+                ↓Text [ngx.components.UIText-1795539919036]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Base · 75 MB
+              ↓Small [ngx.components.UIDynamicElement-1795539919038]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795539919040]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:small
+                ↓Text [ngx.components.UIText-1795539919042]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Small · 300 MB
+            ↓ModelHelp [ngx.components.UIDynamicElement-1795539919044]: 
+              beanData: '{"ionBean":"DivTag"}'
+              tagName: div
+              ↓Class [ngx.components.UIAttribute-1795539919046]: 
+                attrName: class
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:demo-help
+              ↓Text [ngx.components.UIText-1795539919048]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: 'plain:Auto: Small on a computer with WebGPU, Base elsewhere.'
+          ↓LanguageField [ngx.components.UIDynamicElement-1795539919050]: 
+            beanData: '{"ionBean":"DivTag"}'
+            tagName: div
+            ↓Class [ngx.components.UIAttribute-1795539919052]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-field
+            ↓LanguageSelect [ngx.components.UIDynamicElement-1795539919054]: 
+              beanData: |
+                '{
+                 "ionBean": "Select",
+                 "ControlName": "plain:name1795539919054",
+                 "IonMode": "plain",
+                 "Disabled": "plain:false",
+                 "DoubleBinding": "plain",
+                 "CancelText": "plain:Cancel",
+                 "OkText": "plain:Ok",
+                 "CompareWith": "plain",
+                 "ExpandedIcon": "plain",
+                 "Fill": "plain:outline",
+                 "Interface": "plain:popover",
+                 "InterfaceOptions": "plain",
+                 "Justify": "plain:space-between",
+                 "Label": "plain:Language",
+                 "LabelPlacement": "plain:stacked",
+                 "Legacy": "plain:false",
+                 "Placeholder": "plain",
+                 "Multiple": "plain:false",
+                 "SelectedText": "plain",
+                 "Shape": "plain",
+                 "ToggleIcon": "plain",
+                 "Value": "plain"
+                }'
+              comment: Language passed to both speechToText_sc; empty detects it
+              tagName: ion-select
+              ↓Value [ngx.components.UIAttribute-1795539919056]: 
+                attrName: '[value]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.language || ''
+              ↓Change [ngx.components.UIAttribute-1795539919058]: 
+                attrName: (ionChange)
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:local.language = $event.detail.value
+              ↓Disabled [ngx.components.UIAttribute-1795539919060]: 
+                attrName: '[disabled]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!!(local?.state?.listening || local?.state?.loading)
+              ↓OptionAuto [ngx.components.UIDynamicElement-1795539919062]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919064]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:
+                ↓Text [ngx.components.UIText-1795539919066]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Detect automatically
+              ↓OptionEnglish [ngx.components.UIDynamicElement-1795539919068]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919070]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:english
+                ↓Text [ngx.components.UIText-1795539919072]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:English
+              ↓OptionFrench [ngx.components.UIDynamicElement-1795539919074]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919076]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:french
+                ↓Text [ngx.components.UIText-1795539919078]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:French
+              ↓OptionSpanish [ngx.components.UIDynamicElement-1795539919080]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919082]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:spanish
+                ↓Text [ngx.components.UIText-1795539919084]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Spanish
+              ↓OptionGerman [ngx.components.UIDynamicElement-1795539919086]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919088]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:german
+                ↓Text [ngx.components.UIText-1795539919090]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:German
+              ↓OptionItalian [ngx.components.UIDynamicElement-1795539919092]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919094]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:italian
+                ↓Text [ngx.components.UIText-1795539919096]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Italian
+              ↓OptionPortuguese [ngx.components.UIDynamicElement-1795539919098]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919100]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:portuguese
+                ↓Text [ngx.components.UIText-1795539919102]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Portuguese
+              ↓OptionDutch [ngx.components.UIDynamicElement-1795539919104]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919106]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:dutch
+                ↓Text [ngx.components.UIText-1795539919108]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Dutch
+              ↓OptionPolish [ngx.components.UIDynamicElement-1795539919110]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919112]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:polish
+                ↓Text [ngx.components.UIText-1795539919114]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Polish
+              ↓OptionJapanese [ngx.components.UIDynamicElement-1795539919116]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919118]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:japanese
+                ↓Text [ngx.components.UIText-1795539919120]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Japanese
+              ↓OptionChinese [ngx.components.UIDynamicElement-1795539919122]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919124]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:chinese
+                ↓Text [ngx.components.UIText-1795539919126]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Chinese
+              ↓OptionArabic [ngx.components.UIDynamicElement-1795539919128]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795539919130]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:arabic
+                ↓Text [ngx.components.UIText-1795539919132]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Arabic
+            ↓LanguageHelp [ngx.components.UIDynamicElement-1795539919134]: 
+              beanData: '{"ionBean":"DivTag"}'
+              tagName: div
+              ↓Class [ngx.components.UIAttribute-1795539919136]: 
+                attrName: class
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:demo-help
+              ↓Text [ngx.components.UIText-1795539919138]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: 'plain:Give the language when you know it: more reliable than detection.'
+    ↓LiveCard [ngx.components.UIDynamicElement-1795539919140]: 
+      beanData: |
+        '{
+         "ionBean": "Card",
+         "Button": "plain:false",
+         "ButtonFormType": "plain:button",
+         "Disabled": "plain:false",
+         "IonColor": "plain",
+         "IonMode": "plain",
+         "LinkUrl": "plain",
+         "LinkDownload": "plain",
+         "LinkTarget": "plain",
+         "LinkRel": "plain",
+         "LinkRouterPath": "plain",
+         "LinkRouterData": "plain",
+         "LinkRouterAnimation": "plain",
+         "LinkRouterDirection": "plain"
+        }'
+      comment: Live transcription with provisional text, measures and copy
+      tagName: ion-card
+      ↓Class [ngx.components.UIAttribute-1795539919142]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:demo-card
+      ↓CardHeader [ngx.components.UIDynamicElement-1795539919144]: 
+        beanData: |
+          '{
+           "ionBean": "CardHeader",
+           "IonColor": "plain",
+           "IonMode": "plain",
+           "Translucent": "plain:false"
+          }'
+        tagName: ion-card-header
+        ↓CardTitle [ngx.components.UIDynamicElement-1795539919146]: 
+          beanData: |
+            '{
+             "ionBean": "CardTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-title
+          ↓Text [ngx.components.UIText-1795539919148]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Live transcription
+        ↓CardSubtitle [ngx.components.UIDynamicElement-1795539919150]: 
+          beanData: |
+            '{
+             "ionBean": "CardSubTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-subtitle
+          ↓Text [ngx.components.UIText-1795539919152]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: 'plain:Grey text: the sentence in progress, validated after each pause'
+      ↓CardContent [ngx.components.UIDynamicElement-1795539919154]: 
+        beanData: '{"ionBean":"CardContent","IonMode":"plain"}'
+        tagName: ion-card-content
+        ↓Mic [ngx.components.UIDynamicElement-1795539919156]: 
+          beanData: '{"ionBean":"DivTag"}'
+          tagName: div
+          ↓Class [ngx.components.UIAttribute-1795539919158]: 
+            attrName: class
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:demo-mic
+          ↓LiveSpeech [ngx.components.UIUseShared-1795539919160]: 
+            comment: speechToText_sc with the chosen model and language
+            sharedcomponent: lib_SpeechToText_ui_ngx.Application.NgxApp.speechToText_sc
+            ↓model [ngx.components.UIUseVariable-1795539920216]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.model || 'auto'
+            ↓language [ngx.components.UIUseVariable-1795539920218]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.language || ''
+            ↓OnPartial [ngx.components.UIControlEvent-1795539920220]: 
+              attrName: (Partial)
+              eventName: Partial
+              ↓ShowPartial [ngx.components.UICustomAction-1795539920674]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        		page.local.partial = event;
+                        		resolve();
+                        
+            ↓OnFinal [ngx.components.UIControlEvent-1795539920676]: 
+              attrName: (Final)
+              eventName: Final
+              ↓AppendFinal [ngx.components.UICustomAction-1795539920678]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        		page.local.text = ((page.local.text || '') + ' ' + event).trim();
+                        		page.local.partial = '';
+                        		resolve();
+                        
+            ↓OnState [ngx.components.UIControlEvent-1795539920680]: 
+              attrName: (StateChanged)
+              eventName: StateChanged
+              ↓KeepState [ngx.components.UICustomAction-1795539920682]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        		page.local.state = event;
+                        		resolve();
+                        
+            ↓OnReady [ngx.components.UIControlEvent-1795539920684]: 
+              attrName: (Ready)
+              eventName: Ready
+              ↓KeepModel [ngx.components.UICustomAction-1795539920686]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        '		page.local.info = event;
+                        		page.local.stats = { partial: [], final: [] };
+                        		page.local.perf = '''';
+                        		resolve();
+                        '
+            ↓OnStats [ngx.components.UIControlEvent-1795539920688]: 
+              attrName: (Stats)
+              eventName: Stats
+              ↓Measure [ngx.components.UICustomAction-1795539920690]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        '		const stats = page.local.stats || (page.local.stats = { partial: [], final: [] });
+                        		const list = stats[event.kind];
+                        		list.push(event.ms);
+                        		if (list.length > 20) { list.shift(); }
+                        		const all = stats.partial.concat(stats.final);
+                        		page.local.perf = (all.reduce((a, b) => a + b, 0) / all.length / 1000).toFixed(2) + '' s per pass'';
+                        		resolve();
+                        '
+        ↓Transcript [ngx.components.UIDynamicElement-1795539920692]: 
+          beanData: '{"ionBean":"DivTag"}'
+          comment: Validated text, then the sentence in progress
+          tagName: div
+          ↓Class [ngx.components.UIAttribute-1795539920694]: 
+            attrName: class
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:demo-transcript
+          ↓Done [ngx.components.UIDynamicElement-1795539920696]: 
+            beanData: '{"ionBean":"SpanTag"}'
+            tagName: span
+            ↓Text [ngx.components.UIText-1795539920698]: 
+              textValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.text || ''
+          ↓Live [ngx.components.UIDynamicElement-1795539920700]: 
+            beanData: '{"ionBean":"SpanTag"}'
+            tagName: span
+            ↓Class [ngx.components.UIAttribute-1795539920702]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-partial
+            ↓Text [ngx.components.UIText-1795539920704]: 
+              textValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: 'script:(local?.text && local?.partial ? '' '' : '''') + (local?.partial || '''')'
+          ↓Placeholder [ngx.components.UIDynamicElement-1795539920706]: 
+            beanData: '{"ionBean":"SpanTag"}'
+            tagName: span
+            ↓Class [ngx.components.UIAttribute-1795539920708]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-placeholder
+            ↓Text [ngx.components.UIText-1795539920710]: 
+              textValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: 'script:!local?.text && !local?.partial ? ''Press the microphone and speak: the text shows up here.'' : '''''
+        ↓Footer [ngx.components.UIDynamicElement-1795539920712]: 
+          beanData: '{"ionBean":"DivTag"}'
+          tagName: div
+          ↓Class [ngx.components.UIAttribute-1795539920714]: 
+            attrName: class
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:demo-footer
+          ↓Chips [ngx.components.UIDynamicElement-1795539920716]: 
+            beanData: '{"ionBean":"DivTag"}'
+            tagName: div
+            ↓Class [ngx.components.UIAttribute-1795539920718]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-chips
+            ↓ModelChip [ngx.components.UIDynamicElement-1795539920720]: 
+              beanData: |
+                '{
+                 "ionBean": "Chip",
+                 "Disabled": "plain:false",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Outline": "plain:false"
+                }'
+              tagName: ion-chip
+              ↓Hidden [ngx.components.UIAttribute-1795539920722]: 
+                attrName: '[hidden]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!local?.info
+              ↓Icon [ngx.components.UIDynamicElement-1795539920724]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:hardware-chip-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795539920726]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.info?.model || ''
+            ↓DeviceChip [ngx.components.UIDynamicElement-1795539920728]: 
+              beanData: |
+                '{
+                 "ionBean": "Chip",
+                 "Disabled": "plain:false",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Outline": "plain:false"
+                }'
+              tagName: ion-chip
+              ↓Hidden [ngx.components.UIAttribute-1795539920730]: 
+                attrName: '[hidden]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!local?.info
+              ↓Icon [ngx.components.UIDynamicElement-1795539920732]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:speedometer-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795539920734]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.info?.device || ''
+            ↓PerfChip [ngx.components.UIDynamicElement-1795539920736]: 
+              beanData: |
+                '{
+                 "ionBean": "Chip",
+                 "Disabled": "plain:false",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Outline": "plain:false"
+                }'
+              tagName: ion-chip
+              ↓Hidden [ngx.components.UIAttribute-1795539920738]: 
+                attrName: '[hidden]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!local?.perf
+              ↓Icon [ngx.components.UIDynamicElement-1795539920740]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:timer-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795539920742]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.perf || ''
+          ↓Actions [ngx.components.UIDynamicElement-1795539920744]: 
+            beanData: '{"ionBean":"DivTag"}'
+            tagName: div
+            ↓Class [ngx.components.UIAttribute-1795539920746]: 
+              attrName: class
+              attrValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:demo-actions
+            ↓CopyButton [ngx.components.UIDynamicElement-1795539920748]: 
+              beanData: |
+                '{
+                 "ionBean": "Button",
+                 "Disabled": "script:!local?.text",
+                 "IonFill": "plain:clear",
+                 "IonSize": "plain:small"
+                }'
+              tagName: ion-button
+              ↓Icon [ngx.components.UIDynamicElement-1795539920750]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:copy-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain:start",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795539920752]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Copy
+              ↓Click [ngx.components.UIControlEvent-1795539920754]: 
+                ↓CopyText [ngx.components.UICustomAction-1795539920756]: 
+                  actionValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                      - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                        →: |
+                          		if (page.local.text && navigator.clipboard) { navigator.clipboard.writeText(page.local.text); }
+                          		resolve();
+                          
+            ↓ClearButton [ngx.components.UIDynamicElement-1795539920758]: 
+              beanData: |
+                '{
+                 "ionBean": "Button",
+                 "Disabled": "script:!local?.text && !local?.partial",
+                 "IonFill": "plain:clear",
+                 "IonSize": "plain:small"
+                }'
+              tagName: ion-button
+              ↓Icon [ngx.components.UIDynamicElement-1795539920760]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:trash-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain:start",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795539920762]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Clear
+              ↓Click [ngx.components.UIControlEvent-1795539920764]: 
+                ↓ClearText [ngx.components.UICustomAction-1795539920766]: 
+                  actionValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                      - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                        →: |
+                          		page.local.text = '';
+                          		page.local.partial = '';
+                          		resolve();
+                          
+    ↓FieldCard [ngx.components.UIDynamicElement-1795539920768]: 
+      beanData: |
+        '{
+         "ionBean": "Card",
+         "Button": "plain:false",
+         "ButtonFormType": "plain:button",
+         "Disabled": "plain:false",
+         "IonColor": "plain",
+         "IonMode": "plain",
+         "LinkUrl": "plain",
+         "LinkDownload": "plain",
+         "LinkTarget": "plain",
+         "LinkRel": "plain",
+         "LinkRouterPath": "plain",
+         "LinkRouterData": "plain",
+         "LinkRouterAnimation": "plain",
+         "LinkRouterDirection": "plain"
+        }'
+      comment: Dictation into a text area
+      tagName: ion-card
+      ↓Class [ngx.components.UIAttribute-1795539920770]: 
+        attrName: class
+        attrValue: 
+          - xmlizable: 
+            - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+            - MobileSmartSourceType: plain:demo-card
+      ↓CardHeader [ngx.components.UIDynamicElement-1795539920772]: 
+        beanData: |
+          '{
+           "ionBean": "CardHeader",
+           "IonColor": "plain",
+           "IonMode": "plain",
+           "Translucent": "plain:false"
+          }'
+        tagName: ion-card-header
+        ↓CardTitle [ngx.components.UIDynamicElement-1795539920774]: 
+          beanData: |
+            '{
+             "ionBean": "CardTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-title
+          ↓Text [ngx.components.UIText-1795539920776]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Dictation into a field
+        ↓CardSubtitle [ngx.components.UIDynamicElement-1795539920778]: 
+          beanData: |
+            '{
+             "ionBean": "CardSubTitle",
+             "IonColor": "plain",
+             "IonMode": "plain"
+            }'
+          tagName: ion-card-subtitle
+          ↓Text [ngx.components.UIText-1795539920780]: 
+            textValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Each validated sentence is appended to the note; both examples share one model
+      ↓CardContent [ngx.components.UIDynamicElement-1795539920782]: 
+        beanData: '{"ionBean":"CardContent","IonMode":"plain"}'
+        tagName: ion-card-content
+        ↓Note [ngx.components.UIDynamicElement-1795539920784]: 
+          beanData: |
+            '{
+             "ionBean": "TextArea",
+             "ControlName": "plain:name1795539920784",
+             "DoubleBinding": "plain",
+             "Disabled": "plain:false",
+             "IonColor": "plain",
+             "IonMode": "plain",
+             "AutoGrow": "plain:false",
+             "Autocapitalize": "plain:off",
+             "AutoFocus": "plain:false",
+             "ClearOnEdit": "plain:false",
+             "Counter": "plain:false",
+             "CounterFormatter": "plain",
+             "Debounce": "plain",
+             "EnterKeyHint": "plain",
+             "ErrorText": "plain",
+             "Fill": "plain",
+             "HelperText": "plain",
+             "InputMode": "plain",
+             "Label": "plain",
+             "LabelPlacement": "plain:start",
+             "Legacy": "plain:false",
+             "MaxLength": "plain",
+             "MinLength": "plain",
+             "Placeholder": "plain",
+             "Readonly": "plain:false",
+             "Required": "plain:false",
+             "Shape": "plain",
+             "Spellcheck": "plain:false",
+             "Cols": "plain",
+             "Rows": "plain",
+             "Value": "plain:",
+             "Wrap": "plain"
+            }'
+          comment: Field filled by typing or by dictation
+          tagName: ion-textarea
+          ↓Value [ngx.components.UIAttribute-1795539920786]: 
+            attrName: '[value]'
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: script:local?.note || ''
+          ↓Input [ngx.components.UIAttribute-1795539920788]: 
+            attrName: (ionInput)
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:local.note = $event.detail.value
+          ↓Placeholder [ngx.components.UIAttribute-1795539920790]: 
+            attrName: placeholder
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Type or dictate a note
+          ↓Fill [ngx.components.UIAttribute-1795539920792]: 
+            attrName: fill
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:outline
+          ↓Label [ngx.components.UIAttribute-1795539920794]: 
+            attrName: label
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:Note
+          ↓LabelPlacement [ngx.components.UIAttribute-1795539920796]: 
+            attrName: labelPlacement
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:floating
+          ↓AutoGrow [ngx.components.UIAttribute-1795539920798]: 
+            attrName: '[autoGrow]'
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: script:true
+          ↓Rows [ngx.components.UIAttribute-1795539920800]: 
+            attrName: rows
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:3
+        ↓FieldMic [ngx.components.UIDynamicElement-1795539920802]: 
+          beanData: '{"ionBean":"DivTag"}'
+          tagName: div
+          ↓Class [ngx.components.UIAttribute-1795539920804]: 
+            attrName: class
+            attrValue: 
+              - xmlizable: 
+                - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                - MobileSmartSourceType: plain:demo-field-mic
+          ↓FieldSpeech [ngx.components.UIUseShared-1795539920806]: 
+            comment: speechToText_sc appending each sentence to the note
+            sharedcomponent: lib_SpeechToText_ui_ngx.Application.NgxApp.speechToText_sc
+            ↓model [ngx.components.UIUseVariable-1795539920808]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.model || 'auto'
+            ↓language [ngx.components.UIUseVariable-1795539920810]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:local?.language || ''
+            ↓label [ngx.components.UIUseVariable-1795539920812]: 
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: script:'Dictate'
+            ↓OnFinal [ngx.components.UIControlEvent-1795539920814]: 
+              attrName: (Final)
+              eventName: Final
+              ↓AppendToNote [ngx.components.UICustomAction-1795539920816]: 
+                actionValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+                    - com.twinsoft.convertigo.beans.common.FormatedContent: 
+                      →: |
+                        		page.local.note = ((page.local.note || '') + ' ' + event).trim();
+                        		resolve();
+                        
+↓Style [ngx.components.UIStyle-1795539921808]: 
+  comment: Layout of the example page
+  styleContent: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+      - com.twinsoft.convertigo.beans.common.FormatedContent: 
+        →: |
+          '.demo {
+          	max-width: 860px;
+          	margin: 0 auto;
+          	padding-bottom: 32px;
+          }
+          
+          .demo-intro {
+          	padding: 8px 4px 4px;
+          }
+          
+          .demo-intro h1 {
+          	margin: 8px 0 6px;
+          	font-size: 26px;
+          	font-weight: 700;
+          }
+          
+          .demo-intro p {
+          	margin: 0 0 8px;
+          	color: var(--ion-color-medium, #92949c);
+          	line-height: 1.5;
+          }
+          
+          .demo-card {
+          	margin: 16px 0;
+          	border-radius: 16px;
+          }
+          
+          .demo-settings {
+          	display: grid;
+          	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+          	gap: 20px;
+          	align-items: start;
+          }
+          
+          @media (max-width: 640px) {
+          	.demo-settings {
+          		grid-template-columns: minmax(0, 1fr);
+          	}
+          }
+          
+          .demo-label {
+          	font-size: 12px;
+          	margin-bottom: 6px;
+          	color: var(--ion-color-medium, #92949c);
+          }
+          
+          .demo-help {
+          	margin-top: 6px;
+          	font-size: 12px;
+          	color: var(--ion-color-medium, #92949c);
+          }
+          
+          .demo-mic {
+          	display: flex;
+          	justify-content: center;
+          	padding: 8px 0 16px;
+          }
+          
+          .demo-transcript {
+          	min-height: 96px;
+          	padding: 14px 16px;
+          	border-radius: 12px;
+          	border: 1px solid rgba(127, 127, 127, 0.3);
+          	background: rgba(127, 127, 127, 0.06);
+          	font-size: 17px;
+          	line-height: 1.6;
+          	color: var(--ion-text-color, inherit);
+          }
+          
+          .demo-partial {
+          	color: var(--ion-color-medium, #92949c);
+          	font-style: italic;
+          }
+          
+          .demo-placeholder {
+          	color: var(--ion-color-medium, #92949c);
+          }
+          
+          .demo-footer {
+          	display: flex;
+          	flex-wrap: wrap;
+          	align-items: center;
+          	justify-content: space-between;
+          	gap: 8px;
+          	margin-top: 10px;
+          }
+          
+          .demo-chips ion-chip {
+          	margin: 0 6px 0 0;
+          	font-size: 12px;
+          }
+          
+          .demo-chips ion-chip ion-icon {
+          	margin: 0 6px 0 0;
+          }
+          
+          .demo-actions ion-button {
+          	margin: 0;
+          	text-transform: none;
+          }
+          
+          .demo-field-mic {
+          	margin-top: 12px;
+          }
+          '

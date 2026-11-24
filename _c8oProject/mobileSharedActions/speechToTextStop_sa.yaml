@@ -1,0 +1,21 @@
+comment: Stops the microphone of any speechToText_sc (for example when leaving a page) and resolves once what was said last is transcribed (its Final and Done events fire on the component). Resolves at once when nothing listens.
+↓stop [ngx.components.UICustomAction-1795533673042]: 
+  actionValue: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.FormatedContent
+      - com.twinsoft.convertigo.beans.common.FormatedContent: 
+        →: |
+          '		const stt: any = (window as any).__c8oSpeechToText;
+          		if (!stt || !stt.state.listening) {
+          			resolve({ stopped: false });
+          		} else {
+          			const off = stt.on((e: any) => {
+          				if (e.type === ''done'' || e.type === ''error'') {
+          					off();
+          					resolve({ stopped: true });
+          				}
+          			});
+          			stt.stop(false);
+          		}
+          '
+  comment: Stops the engine of lib_SpeechToText_ui_ngx and waits for its last transcription

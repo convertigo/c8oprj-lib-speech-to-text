@@ -1,0 +1,15 @@
+lib_SpeechToText_ui_ngx
+Copyright Convertigo. Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This library redistributes the following third-party components, in DisplayObjects/stt/lib:
+
+- transformers.js 4.3.2 (@huggingface/transformers), https://github.com/huggingface/transformers.js
+  Copyright Hugging Face. Apache License, Version 2.0.
+
+- ONNX Runtime Web 1.31.0-dev.20260914-8d85527a0 (onnxruntime-web), https://github.com/microsoft/onnxruntime
+  Copyright Microsoft Corporation. MIT License.
+
+The speech recognition models are distributed separately, in the projects lib_SpeechToText_model_whisperBase and
+lib_SpeechToText_model_whisperSmall: OpenAI Whisper base and small, ONNX exports by onnx-community,
+https://huggingface.co/onnx-community/whisper-base and https://huggingface.co/onnx-community/whisper-small.
+Copyright OpenAI. Apache License, Version 2.0 (MIT for the original release on GitHub).
