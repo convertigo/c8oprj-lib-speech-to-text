@@ -3,7 +3,7 @@ comment: Loads the speech-to-text model in advance (for example in the app's onA
   comment: '<p>''auto'', ''base'' or ''small'': give the same value as the speechToText_sc of the app</p><p><b>Example:</b> <code>''auto''</code></p>'
   value: '''auto'''
 ↓language [ngx.components.UIStackVariable-1795533671980]: 
-  comment: <p>Spoken language, as a Whisper language name ('english', 'french'...); empty to detect it. Give the same value as the speechToText_sc of the app</p><p><b>Example:</b> <code>''</code></p>
+  comment: '<p>Language the user speaks: Whisper name or ISO code; empty: the language of the browser; ''auto'' to detect it. Give the same value as the speechToText_sc of the app</p><p><b>Example:</b> <code>''''</code></p>'
 ↓modelsUrl [ngx.components.UIStackVariable-1795533671982]: 
   comment: '<p>Folder holding onnx-community/whisper-base/ and whisper-small/; empty: the model projects deployed on the server of the app</p><p><b>Example:</b> <code>''''</code></p>'
 ↓preload [ngx.components.UICustomAction-1795533671984]: 

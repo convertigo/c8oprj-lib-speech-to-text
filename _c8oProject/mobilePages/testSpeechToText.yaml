@@ -562,7 +562,7 @@ title: Speech to text
                  "Interface": "plain:popover",
                  "InterfaceOptions": "plain",
                  "Justify": "plain:space-between",
-                 "Label": "plain:Language",
+                 "Label": "plain:Spoken language",
                  "LabelPlacement": "plain:stacked",
                  "Legacy": "plain:false",
                  "Placeholder": "plain",
@@ -572,8 +572,27 @@ title: Speech to text
                  "ToggleIcon": "plain",
                  "Value": "plain"
                 }'
-              comment: Language passed to both speechToText_sc; empty detects it
+              comment: 'Language the user speaks, passed to both speechToText_sc: empty for the browser language, auto to detect it'
               tagName: ion-select
+              ↓OptionBrowser [ngx.components.UIDynamicElement-1795542289625]: 
+                beanData: |
+                  '{
+                   "ionBean": "SelectOption",
+                   "Disabled": "plain:false",
+                   "Value": "plain"
+                  }'
+                tagName: ion-select-option
+                ↓Value [ngx.components.UIAttribute-1795542289627]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:
+                ↓Text [ngx.components.UIText-1795542289629]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Language of the browser
               ↓Value [ngx.components.UIAttribute-1795539919056]: 
                 attrName: '[value]'
                 attrValue: 
@@ -592,7 +611,7 @@ title: Speech to text
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                     - MobileSmartSourceType: script:!!(local?.state?.listening || local?.state?.loading)
-              ↓OptionAuto [ngx.components.UIDynamicElement-1795539919062]: 
+              ↓OptionDetect [ngx.components.UIDynamicElement-1795539919062]: 
                 beanData: |
                   '{
                    "ionBean": "SelectOption",
@@ -600,17 +619,17 @@ title: Speech to text
                    "Value": "plain"
                   }'
                 tagName: ion-select-option
-                ↓Value [ngx.components.UIAttribute-1795539919064]: 
-                  attrName: value
-                  attrValue: 
-                    - xmlizable: 
-                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                      - MobileSmartSourceType: plain:
                 ↓Text [ngx.components.UIText-1795539919066]: 
                   textValue: 
                     - xmlizable: 
                       - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                       - MobileSmartSourceType: plain:Detect automatically
+                ↓Value [ngx.components.UIAttribute-1795542288605]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:auto
               ↓OptionEnglish [ngx.components.UIDynamicElement-1795539919068]: 
                 beanData: |
                   '{
@@ -833,7 +852,7 @@ title: Speech to text
                 textValue: 
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                    - MobileSmartSourceType: 'plain:Give the language when you know it: more reliable than detection.'
+                    - MobileSmartSourceType: 'plain:The text is written in this language. Detection often takes an accent for English: choose the language when you can.'
     ↓LiveCard [ngx.components.UIDynamicElement-1795539919140]: 
       beanData: |
         '{
@@ -1120,6 +1139,41 @@ title: Speech to text
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                     - MobileSmartSourceType: script:local?.info?.device || ''
+            ↓LanguageChip [ngx.components.UIDynamicElement-1795542290649]: 
+              beanData: |
+                '{
+                 "ionBean": "Chip",
+                 "Disabled": "plain:false",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Outline": "plain:false"
+                }'
+              comment: Language Whisper transcribes in
+              tagName: ion-chip
+              ↓Hidden [ngx.components.UIAttribute-1795542290651]: 
+                attrName: '[hidden]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:!local?.info
+              ↓Icon [ngx.components.UIDynamicElement-1795542290653]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:language-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795542290655]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: 'script:local?.info?.language === ''auto'' ? ''Detected language'' : ((local?.info?.language || '''') | titlecase)'
             ↓PerfChip [ngx.components.UIDynamicElement-1795539920736]: 
               beanData: |
                 '{

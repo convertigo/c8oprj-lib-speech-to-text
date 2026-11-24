@@ -87,7 +87,7 @@ scriptContent:
         				this[''StateChanged''].emit(e.state);
         				break;
         			case ''ready'':
-        				this[''Ready''].emit({ model: e.model, device: e.device, reason: e.reason, loadMs: e.loadMs });
+        				this[''Ready''].emit({ model: e.model, device: e.device, reason: e.reason, loadMs: e.loadMs, language: e.language });
         				break;
         			case ''partial'':
         				if (e.owner === this.sttId) { this[''Partial''].emit(e.text); }
@@ -149,7 +149,7 @@ scriptContent:
   comment: '<p>Model: ''auto'' (Whisper small on a computer with WebGPU, Whisper base elsewhere), ''base'' or ''small''</p><p><b>Example:</b> <code>''auto''</code></p>'
   value: '''auto'''
 ↓language [ngx.components.UICompVariable-1795533642836]: 
-  comment: '<p>Spoken language, as a Whisper language name (''english'', ''french'', ''spanish'', ''german''...); empty to detect it at each pass. Give it when you know it: more reliable and a bit faster</p><p><b>Example:</b> <code>''english''</code></p>'
+  comment: '<p>Language the user speaks: a Whisper name (''french'', ''english''...) or an ISO code (''fr'', ''en-US''). Empty: the language of the browser. ''auto'': Whisper detects it at each pass (on short pieces of speech it often takes an accent for English and then writes English)</p><p><b>Example:</b> <code>''fr''</code></p>'
 ↓modelsUrl [ngx.components.UICompVariable-1795533642838]: 
   comment: '<p>URL of a folder holding onnx-community/whisper-base/ and onnx-community/whisper-small/. Empty: the model projects lib_SpeechToText_model_whisperBase and lib_SpeechToText_model_whisperSmall deployed on the server of the app</p><p><b>Example:</b> <code>''https://cdn.example.com/models/''</code></p>'
   value: '''${lib_speechtotext.models.url=}'''
@@ -175,7 +175,7 @@ scriptContent:
   comment: Fired once everything said before the stop has been transcribed.
 ↓Ready [ngx.components.UICompEvent-1795533642854]: 
   attrName: Ready
-  comment: 'Model loaded: {model, device, reason, loadMs}.'
+  comment: 'Model loaded: {model, device, reason, loadMs, language} (language: the Whisper name used, ''auto'' when detected).'
 ↓StateChanged [ngx.components.UICompEvent-1795533642856]: 
   attrName: StateChanged
   comment: 'Every state change of the engine: {status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error}.'

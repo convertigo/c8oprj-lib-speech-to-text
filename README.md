@@ -58,10 +58,18 @@ of the model projects), or give `modelsUrl` to the component. The symbol is comp
 
 ## Languages
 
-Whisper base and small are multilingual: one model recognises 99 languages. Set `language` to a Whisper language name
-(`'english'`, `'french'`, `'spanish'`, `'german'`, `'italian'`, `'portuguese'`, `'dutch'`, `'japanese'`, `'chinese'`…)
-or leave it empty to detect the language at each pass. Give it when you know it: detection on short pieces of speech
-can switch language from one pass to the next, and a fixed language is a bit faster.
+Whisper base and small are multilingual: one model recognises 99 languages. `language` is the language the user
+speaks, and the text is written in it:
+
+| `language` | Language used |
+| --- | --- |
+| `''` (default) | the first language of the browser that Whisper knows (`fr-FR` gives French) |
+| `'fr'`, `'en-US'`… | the language of this ISO code |
+| `'french'`, `'english'`… | this Whisper language name |
+| `'auto'` | detected by Whisper at each pass |
+
+Avoid `'auto'` when you can: on short pieces of speech and real microphones, the small models often take an accent for
+English, and then write English while the user speaks another language. The `Ready` event gives the language used.
 
 English is recognised best, then the main European languages (good with Small, correct with Base); languages with
 little training data are much weaker with these small models.
@@ -76,7 +84,7 @@ model and one microphone, and each receives only the text of its own dictation.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `model` | `'auto'` | `'auto'`, `'base'` or `'small'` |
-| `language` | `''` | Whisper language name (`'english'`, `'french'`…); empty to detect it at each pass |
+| `language` | `''` | spoken language: empty for the browser language, an ISO code (`'fr'`), a Whisper name (`'french'`) or `'auto'` (see [Languages](#languages)) |
 | `modelsUrl` | `'${lib_speechtotext.models.url=}'` | folder holding `onnx-community/<model>/`; empty: the model projects of the server |
 | `micProcessing` | `true` | echo cancellation, noise suppression and automatic gain of the browser; turn it off if words are cut or distorted |
 | `preload` | `true` | load the model when the component shows, or at the first click |
@@ -88,8 +96,8 @@ model and one microphone, and each receives only the text of its own dictation.
 | `Partial` | provisional text of the sentence in progress, several times per second |
 | `Final` | validated sentence, after each pause and at the stop |
 | `Done` | everything said before the stop is transcribed |
-| `Ready` | `{model, device, reason, loadMs}` |
-| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error}` |
+| `Ready` | `{model, device, reason, loadMs, language}` |
+| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error, language}` |
 | `Stats` | `{kind: 'partial' or 'final', ms, audioS}` for each transcription pass |
 | `Error` | message: microphone refused, model project not deployed, worker failure |
 

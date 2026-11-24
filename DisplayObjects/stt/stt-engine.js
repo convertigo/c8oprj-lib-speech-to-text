@@ -5,15 +5,47 @@
 //   const { speechToText } = await import(libUrl + 'stt-engine.js');
 //   const stt = speechToText();
 //   const off = stt.on((e) => { ... });   // every event, see emit() below
-//   await stt.load({ model: 'auto', language: '', modelsUrl: '' });
+//   await stt.load({ model: 'auto', language: '', modelsUrl: '' });   // '' = language of the browser
 //   await stt.start(ownerId, { micProcessing: true });  …  stt.stop();
 //
-// Events: {type:'state', state} after every change, {type:'ready', model, device, reason, loadMs},
+// Events: {type:'state', state} after every change, {type:'ready', model, device, reason, loadMs, language},
 // {type:'partial', owner, text}, {type:'final', owner, text}, {type:'done', owner}, {type:'error', owner, message},
 // {type:'stats', kind, ms, audioS}. state = {status, ready, loading, listening, finishing, speaking, level, model,
-// device, reason, loadMs, progress, owner, error}.
+// device, reason, loadMs, progress, owner, error, language ('auto' when detected)}.
 
 const LIB_URL = new URL('./', import.meta.url).href;
+
+// ISO 639-1 codes of the languages Whisper knows best, to their Whisper names
+const LANGS = {
+	en: 'english', fr: 'french', es: 'spanish', de: 'german', it: 'italian', pt: 'portuguese', nl: 'dutch', pl: 'polish',
+	ru: 'russian', uk: 'ukrainian', cs: 'czech', sk: 'slovak', ro: 'romanian', hu: 'hungarian', el: 'greek', bg: 'bulgarian',
+	hr: 'croatian', sr: 'serbian', sl: 'slovenian', sv: 'swedish', da: 'danish', no: 'norwegian', nb: 'norwegian',
+	nn: 'nynorsk', fi: 'finnish', et: 'estonian', lv: 'latvian', lt: 'lithuanian', ca: 'catalan', eu: 'basque',
+	gl: 'galician', tr: 'turkish', ar: 'arabic', he: 'hebrew', fa: 'persian', hi: 'hindi', ur: 'urdu', bn: 'bengali',
+	ta: 'tamil', ja: 'japanese', zh: 'chinese', ko: 'korean', vi: 'vietnamese', th: 'thai', id: 'indonesian',
+	ms: 'malay', tl: 'tagalog', sw: 'swahili', af: 'afrikaans',
+};
+
+// Spoken language given to Whisper: a Whisper name ('french') or an ISO code ('fr', 'fr-FR') as given; 'auto' to let
+// Whisper detect it at each pass; empty: the first language of the browser that Whisper knows (detection otherwise).
+// Detection on short pieces of speech often takes an accent for English and then writes English, so it is opt-in.
+function resolveLanguage(value) {
+	const v = (value === undefined || value === null ? '' : String(value)).trim().toLowerCase();
+	if (v === 'auto') {
+		return '';
+	}
+	if (!v) {
+		const prefs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]) || [];
+		for (const l of prefs) {
+			const name = LANGS[String(l || '').toLowerCase().split(/[-_]/)[0]];
+			if (name) {
+				return name;
+			}
+		}
+		return '';
+	}
+	return LANGS[v.split(/[-_]/)[0]] || v;
+}
 
 // <server>/convertigo/projects/<model project>/DisplayObjects/models/ next to this library
 function defaultModelUrl(project) {
@@ -38,7 +70,7 @@ class SpeechToTextEngine {
 		this.source = null;
 		this.state = {
 			status: 'idle', ready: false, loading: false, listening: false, finishing: false, speaking: false, level: 0,
-			model: '', device: '', reason: '', loadMs: 0, progress: 0, owner: null, error: '',
+			model: '', device: '', reason: '', loadMs: 0, progress: 0, owner: null, error: '', language: '',
 		};
 	}
 
@@ -63,12 +95,12 @@ class SpeechToTextEngine {
 		this.emit({ type: 'state', state: { ...this.state } });
 	}
 
-	// Loads the model (once per configuration). Options: model 'auto'|'base'|'small', language (Whisper name such as
-	// 'english' or 'french'; empty to detect it), modelsUrl (folder holding onnx-community/<model>/ for both models; empty: the model
+	// Loads the model (once per configuration). Options: model 'auto'|'base'|'small', language (see resolveLanguage:
+	// Whisper name, ISO code, 'auto' to detect it, empty for the language of the browser), modelsUrl (folder holding onnx-community/<model>/ for both models; empty: the model
 	// projects deployed on this server). Resolves with the ready event.
 	load(options = {}) {
 		const model = options.model || 'auto';
-		const language = options.language ? String(options.language) : '';
+		const language = resolveLanguage(options.language);
 		// absolute URL: the worker (and transformers.js) cannot resolve a path relative to the page
 		const modelsUrl = options.modelsUrl ? withSlash(new URL(String(options.modelsUrl), document.baseURI).href) : '';
 		const key = JSON.stringify([model, language, modelsUrl]);
@@ -80,7 +112,7 @@ class SpeechToTextEngine {
 			this.worker.terminate();
 		}
 		this.config = key;
-		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '' });
+		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '', language: language || 'auto' });
 		const worker = new Worker(LIB_URL + 'stt-worker.js', { type: 'module' });
 		this.worker = worker;
 		this.readyPromise = new Promise((resolve, reject) => {
@@ -115,7 +147,7 @@ class SpeechToTextEngine {
 				this.setState({ progress: m.total ? Math.round(m.loaded * 100 / m.total) : 0 });
 				break;
 			case 'ready': {
-				const ready = { type: 'ready', model: m.model, device: m.device, reason: m.reason, loadMs: m.ms };
+				const ready = { type: 'ready', model: m.model, device: m.device, reason: m.reason, loadMs: m.ms, language: this.state.language };
 				this.setState({ status: 'ready', ready: true, loading: false, model: m.model, device: m.device, reason: m.reason, loadMs: m.ms, progress: 100 });
 				this.emit(ready);
 				resolve(ready);
@@ -237,3 +269,4 @@ export function speechToText() {
 }
 
 export const libUrl = LIB_URL;
+export { resolveLanguage };
