@@ -26,9 +26,11 @@ Works in Chrome, Edge, Safari and Firefox, on computers and phones, in 99 langua
 
 2. Deploy on the Convertigo server of your application:
    - `lib_SpeechToText_ui_ngx`: it serves the runtime (`DisplayObjects/stt`) to the browsers;
-   - at least one model project, from the CARs of the releases of
-     [c8oprj-lib-speech-to-text-models](https://github.com/convertigo/c8oprj-lib-speech-to-text-models) (the model files
-     are not in git):
+   - `lib_SpeechToText_model_whisperBase`: a project reference of the library, imported with it from the CAR of the
+     release v1.0.0 of [c8oprj-lib-speech-to-text-models](https://github.com/convertigo/c8oprj-lib-speech-to-text-models)
+     (the model files are not in git); deploy it with your application;
+   - optionally `lib_SpeechToText_model_whisperSmall`, from the CAR of the same release, for a better quality on
+     computers with WebGPU (not a reference: 205 MB that phones do not use).
 
 | Project | Model | Size | Used by "auto" on |
 | --- | --- | --- | --- |

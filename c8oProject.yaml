@@ -7,12 +7,15 @@
     - speechToTextPreload_sa: loads the model in advance
     - speechToTextStop_sa: stops the microphone and waits for the last sentence
     
-    Deploy the model projects lib_SpeechToText_model_whisperBase (every device) and lib_SpeechToText_model_whisperSmall (computers with WebGPU) on the same server, or set the global symbol lib_speechtotext.models.url. Example page: testSpeechToText.'
+    The model project lib_SpeechToText_model_whisperBase (every device) comes with this library as a project reference. Deploy lib_SpeechToText_model_whisperSmall (computers with WebGPU) on the same server for better quality, or set the global symbol lib_speechtotext.models.url. Example page: testSpeechToText.'
   contextTimeout: 59
   corsOrigin: =Origin
   httpSessionTimeout: 60
-  version: 8.4.0.2
+  version: 8.4.0.3
   ↓void [connectors.SqlConnector]: 🗏 connectors/void.yaml
+  ↓lib_SpeechToText_model_whisperBase [references.ProjectSchemaReference]: 
+    comment: Whisper base model, used on every device (see README.md)
+    projectName: lib_SpeechToText_model_whisperBase=https://github.com/convertigo/c8oprj-lib-speech-to-text-models/releases/download/v1.0.0/lib_SpeechToText_model_whisperBase.car
   ↓project1 [references.ProjectSchemaReference]: 
     projectName: mobilebuilder_tpl_8_4_0_ngx=https://github.com/convertigo/c8oprj-mobilebuilder-tpl/archive/mobilebuilder_tpl_8_4_0_ngx.zip
   ↓Application [core.MobileApplication]: 
