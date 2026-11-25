@@ -14,6 +14,8 @@
 // device, reason, loadMs, progress, owner, error, language ('auto' when detected), task, live (partial texts on),
 // liveReason ('off', or 'slow' when the 'auto' live preview stopped them on a slow device)}.
 
+import { createVoskWorker } from './stt-vosk.js';
+
 const LIB_URL = new URL('./', import.meta.url).href;
 
 // ISO 639-1 codes of the languages Whisper knows best, to their Whisper names
@@ -48,11 +50,16 @@ function resolveLanguage(value) {
 	return LANGS[v.split(/[-_]/)[0]] || v;
 }
 
-// <server>/convertigo/projects/<model project>/DisplayObjects/models/ next to this library
-function defaultModelUrl(project) {
+// <server>/convertigo/projects/ next to this library
+function projectsUrl() {
 	const i = LIB_URL.indexOf('/projects/');
 	const root = i > 0 ? LIB_URL.substring(0, i) : new URL('../../..', LIB_URL).href.replace(/\/$/, '');
-	return root + '/projects/' + project + '/DisplayObjects/models/';
+	return root + '/projects/';
+}
+
+// <server>/convertigo/projects/<model project>/DisplayObjects/models/
+function defaultModelUrl(project) {
+	return projectsUrl() + project + '/DisplayObjects/models/';
 }
 
 // A module worker must come from the origin of the page. When the library is served by another origin (the live
@@ -110,7 +117,7 @@ class SpeechToTextEngine {
 		this.emit({ type: 'state', state: { ...this.state } });
 	}
 
-	// Loads the model (once per configuration). Options: model 'auto'|'base'|'small', language (see resolveLanguage:
+	// Loads the model (once per configuration). Options: model 'auto'|'tiny'|'base'|'small' (Whisper) or 'vosk', language (see resolveLanguage:
 	// Whisper name, ISO code, 'auto' to detect it, empty for the language of the browser), task ('transcribe' writes in
 	// the spoken language, 'translate' writes English), modelsUrl (folder holding onnx-community/<model>/ for both models; empty: the model
 	// projects deployed on this server). Resolves with the ready event.
@@ -130,7 +137,8 @@ class SpeechToTextEngine {
 		}
 		this.config = key;
 		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '', language: language || 'auto', task });
-		const worker = createWorker(LIB_URL + 'stt-worker.js');
+		// Vosk runs in its own worker (vosk-browser); its adapter speaks the protocol of stt-worker.js
+		const worker = model === 'vosk' ? createVoskWorker(LIB_URL) : createWorker(LIB_URL + 'stt-worker.js');
 		this.worker = worker;
 		this.readyPromise = new Promise((resolve, reject) => {
 			worker.onmessage = (ev) => this.onWorker(ev.data, resolve, reject);
@@ -148,8 +156,9 @@ class SpeechToTextEngine {
 			}
 		});
 		worker.postMessage({
-			type: 'init', model, language, task,
+			type: 'init', model, language, task, modelsUrl, projectsUrl: projectsUrl(),
 			modelUrls: {
+				tiny: modelsUrl || defaultModelUrl('lib_SpeechToText_model_whisperTiny'),
 				base: modelsUrl || defaultModelUrl('lib_SpeechToText_model_whisperBase'),
 				small: modelsUrl || defaultModelUrl('lib_SpeechToText_model_whisperSmall'),
 			},

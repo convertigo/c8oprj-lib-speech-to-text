@@ -9,7 +9,16 @@ This library redistributes the following third-party components, in DisplayObjec
 - ONNX Runtime Web 1.31.0-dev.20260914-8d85527a0 (onnxruntime-web), https://github.com/microsoft/onnxruntime
   Copyright Microsoft Corporation. MIT License.
 
-The speech recognition models are distributed separately, in the projects lib_SpeechToText_model_whisperBase and
-lib_SpeechToText_model_whisperSmall: OpenAI Whisper base and small, ONNX exports by onnx-community,
+- vosk-browser 0.0.8, https://github.com/ccoreilly/vosk-browser
+  Copyright Ciaran O'Reilly. Apache License, Version 2.0. It bundles a WebAssembly build of Vosk
+  (https://github.com/alphacep/vosk-api, Copyright Alpha Cephei Inc., Apache License, Version 2.0) and of Kaldi and
+  OpenFst (Apache License, Version 2.0), uuid (MIT License) and tslib (0BSD); see the vosk-browser repository for the
+  full list of the libraries of its build.
+
+The speech recognition models are distributed separately, in the projects lib_SpeechToText_model_whisperTiny,
+lib_SpeechToText_model_whisperBase and lib_SpeechToText_model_whisperSmall: OpenAI Whisper tiny, base and small,
+ONNX exports by onnx-community, https://huggingface.co/onnx-community/whisper-tiny,
 https://huggingface.co/onnx-community/whisper-base and https://huggingface.co/onnx-community/whisper-small.
 Copyright OpenAI. Apache License, Version 2.0 (MIT for the original release on GitHub).
+And in the project lib_SpeechToText_model_voskSmallFr: vosk-model-small-fr-0.22, https://alphacephei.com/vosk/models,
+Copyright Alpha Cephei Inc. Apache License, Version 2.0.

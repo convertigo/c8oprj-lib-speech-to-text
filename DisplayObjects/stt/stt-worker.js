@@ -5,7 +5,7 @@
 // detector cuts the speech into utterances, the utterance in progress is transcribed again as soon as the
 // previous pass ends (partial text), and once the speaker pauses it is transcribed one last time (final text).
 //
-// In:  {type:'init', model:'auto'|'base'|'small', language, task:'transcribe'|'translate', modelUrls:{base, small}}
+// In:  {type:'init', model:'auto'|'tiny'|'base'|'small', language, task:'transcribe'|'translate', modelUrls:{tiny, base, small}}
 //      (modelUrls: folder holding onnx-community/<model>/; translate writes English whatever the spoken language)
 //      | {type:'audio', samples: Float32Array mono 16 kHz}
 //      | {type:'flush'} (end of recording: finalize the utterance in progress)
@@ -34,9 +34,12 @@ const CONFIGS = {
 	small: { model: 'onnx-community/whisper-small', device: 'webgpu', dtype: { encoder_model: 'q4', decoder_model_merged: 'q4' }, label: 'Whisper small (q4)', where: 'WebGPU' },
 	baseGpu: { model: 'onnx-community/whisper-base', device: { encoder_model: 'webgpu', decoder_model_merged: 'wasm' }, dtype: { encoder_model: 'q4', decoder_model_merged: 'q8' }, label: 'Whisper base', where: 'WebGPU + WebAssembly' },
 	base: { model: 'onnx-community/whisper-base', device: 'wasm', dtype: 'q8', label: 'Whisper base (q8)', where: 'WebAssembly' },
+	// tiny: only when the app asks for it (model 'tiny'), the fastest Whisper without WebGPU, less accurate than base
+	tinyGpu: { model: 'onnx-community/whisper-tiny', device: { encoder_model: 'webgpu', decoder_model_merged: 'wasm' }, dtype: { encoder_model: 'q4', decoder_model_merged: 'q8' }, label: 'Whisper tiny', where: 'WebGPU + WebAssembly' },
+	tiny: { model: 'onnx-community/whisper-tiny', device: 'wasm', dtype: 'q8', label: 'Whisper tiny (q8)', where: 'WebAssembly' },
 };
 
-const PROJECTS = { base: 'lib_SpeechToText_model_whisperBase', small: 'lib_SpeechToText_model_whisperSmall' };
+const PROJECTS = { tiny: 'lib_SpeechToText_model_whisperTiny', base: 'lib_SpeechToText_model_whisperBase', small: 'lib_SpeechToText_model_whisperSmall' };
 
 let asr = null;
 let current = null;
@@ -45,7 +48,7 @@ let task = 'transcribe';
 let modelUrls = {};
 
 function modelKind(key) {
-	return key === 'small' ? 'small' : 'base';
+	return key === 'small' ? 'small' : key.startsWith('tiny') ? 'tiny' : 'base';
 }
 
 // true when the model answers at its URL (its model project is deployed there). A Convertigo server answers 200
@@ -84,6 +87,7 @@ async function choose(wanted) {
 		return gpu ? { key: 'small', reason: 'chosen' } : { key: 'small', wasm: true, reason: 'chosen, without WebGPU: slow' };
 	}
 	if (wanted === 'base') return { key: gpu ? 'baseGpu' : 'base', reason: 'chosen' };
+	if (wanted === 'tiny') return { key: gpu ? 'tinyGpu' : 'tiny', reason: 'chosen' };
 	if (!gpu) return { key: 'base', reason: 'auto: no WebGPU' };
 	if (isMobile()) return { key: 'baseGpu', reason: 'auto: phone or tablet with WebGPU' };
 	return { key: 'small', reason: 'auto: computer with WebGPU' };
@@ -127,11 +131,12 @@ async function load(wanted) {
 		asr = await pipeline('automatic-speech-recognition', cfg.model, { device: cfg.device, dtype: cfg.dtype, progress_callback });
 	} catch (e) {
 		if (!usesGpu(cfg.device)) throw e;
-		// WebGPU announced but unusable: fall back to Whisper base on WebAssembly
+		// WebGPU announced but unusable: fall back to WebAssembly (Whisper tiny stays tiny, the others use base)
 		console.warn('WebGPU failed, falling back to WebAssembly', e);
-		Object.assign(cfg, CONFIGS.base);
+		const fallback = modelKind(pick.key) === 'tiny' ? 'tiny' : 'base';
+		Object.assign(cfg, CONFIGS[fallback]);
 		pick.reason = 'WebGPU failed, WebAssembly instead';
-		env.remoteHost = modelUrls.base;
+		env.remoteHost = modelUrls[fallback];
 		asr = await pipeline('automatic-speech-recognition', cfg.model, { device: 'wasm', dtype: cfg.dtype, progress_callback });
 	}
 	// warm-up: the first run compiles the WebGPU shaders / WASM paths

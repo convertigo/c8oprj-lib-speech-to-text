@@ -358,6 +358,28 @@ title: Speech to text
                     - xmlizable: 
                       - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                       - MobileSmartSourceType: plain:Auto
+              ↓Tiny [ngx.components.UIDynamicElement-1795600000201]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795600000202]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:tiny
+                ↓Text [ngx.components.UIText-1795600000203]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Tiny
               ↓Base [ngx.components.UIDynamicElement-1795539919032]: 
                 beanData: |
                   '{
@@ -379,7 +401,7 @@ title: Speech to text
                   textValue: 
                     - xmlizable: 
                       - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                      - MobileSmartSourceType: plain:Base · 75 MB
+                      - MobileSmartSourceType: plain:Base
               ↓Small [ngx.components.UIDynamicElement-1795539919038]: 
                 beanData: |
                   '{
@@ -401,7 +423,29 @@ title: Speech to text
                   textValue: 
                     - xmlizable: 
                       - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                      - MobileSmartSourceType: plain:Small · 300 MB
+                      - MobileSmartSourceType: plain:Small
+              ↓Vosk [ngx.components.UIDynamicElement-1795600000211]: 
+                beanData: |
+                  '{
+                   "ionBean": "SegmentButton",
+                   "Disabled": "plain:false",
+                   "ButtonFormType": "plain:button",
+                   "IonMode": "plain",
+                   "Layout": "plain:icon-top",
+                   "Value": "plain:"
+                  }'
+                tagName: ion-segment-button
+                ↓Value [ngx.components.UIAttribute-1795600000212]: 
+                  attrName: value
+                  attrValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:vosk
+                ↓Text [ngx.components.UIText-1795600000213]: 
+                  textValue: 
+                    - xmlizable: 
+                      - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                      - MobileSmartSourceType: plain:Vosk
             ↓ModelHelp [ngx.components.UIDynamicElement-1795539919044]: 
               beanData: '{"ionBean":"DivTag"}'
               tagName: div
@@ -415,7 +459,7 @@ title: Speech to text
                 textValue: 
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
-                    - MobileSmartSourceType: 'plain:Auto: Small on a computer with WebGPU, Base elsewhere.'
+                    - MobileSmartSourceType: 'plain:Auto: Small (300 MB) on a computer with WebGPU, Base (75 MB) elsewhere. Tiny (45 MB) and Vosk (42 MB, French only, streaming) are lighter for slow devices, and less accurate.'
           ↓LanguageField [ngx.components.UIDynamicElement-1795539919050]: 
             beanData: '{"ionBean":"DivTag"}'
             tagName: div
@@ -1625,6 +1669,13 @@ title: Speech to text
           	justify-content: space-between;
           	gap: 8px;
           	margin-top: 10px;
+          }
+          
+          /* five model choices: no minimum width per button, so they fit on a phone */
+          ion-segment-button {
+          	min-width: 0;
+          	--padding-start: 4px;
+          	--padding-end: 4px;
           }
           
           .demo-chips ion-chip {

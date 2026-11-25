@@ -146,7 +146,7 @@ scriptContent:
         	/*End_c8o_CompFunction*/
         '
 ↓model [ngx.components.UICompVariable-1795533642834]: 
-  comment: '<p>Model: ''auto'' (Whisper small on a computer with WebGPU, Whisper base elsewhere), ''base'' or ''small''</p><p><b>Example:</b> <code>''auto''</code></p>'
+  comment: '<p>Model: ''auto'' (Whisper small on a computer with WebGPU, Whisper base elsewhere), ''tiny'', ''base'' or ''small'' (Whisper), or ''vosk'' (Kaldi streaming recognition, French only, lighter and less accurate, no punctuation). ''tiny'' and ''vosk'' need their model project deployed</p><p><b>Example:</b> <code>''auto''</code></p>'
   value: '''auto'''
 ↓language [ngx.components.UICompVariable-1795533642836]: 
   comment: '<p>Language the user speaks: a Whisper name (''french'', ''english''...) or an ISO code (''fr'', ''en-US''). Empty: the language of the browser. ''auto'': Whisper detects it at each pass (on short pieces of speech it often takes an accent for English and then writes English)</p><p><b>Example:</b> <code>''fr''</code></p>'

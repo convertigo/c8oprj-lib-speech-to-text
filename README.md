@@ -2,7 +2,8 @@
 
 Offline speech-to-text for Convertigo NGX applications. [Whisper](https://github.com/openai/whisper) runs **in the
 browser** (Web Worker, WebGPU or WebAssembly): the audio never leaves the device and no external service is called.
-Works in Chrome, Edge, Safari and Firefox, on computers and phones, in 99 languages.
+Works in Chrome, Edge, Safari and Firefox, on computers and phones, in 99 languages. For slow devices, two lighter
+engines can be chosen: Whisper tiny, and [Vosk](https://alphacephei.com/vosk/) (Kaldi streaming recognition, French).
 
 ![Example page](marketplace/screen1.jpg)
 
@@ -30,12 +31,16 @@ Works in Chrome, Edge, Safari and Firefox, on computers and phones, in 99 langua
      release v1.0.0 of [c8oprj-lib-speech-to-text-models](https://github.com/convertigo/c8oprj-lib-speech-to-text-models)
      (the model files are not in git); deploy it with your application;
    - optionally `lib_SpeechToText_model_whisperSmall`, from the CAR of the same release, for a better quality on
-     computers with WebGPU (not a reference: 205 MB that phones do not use).
+     computers with WebGPU (not a reference: 205 MB that phones do not use);
+   - optionally `lib_SpeechToText_model_whisperTiny` and `lib_SpeechToText_model_voskSmallFr` (release v1.1.0 of the
+     same repository) when your app sets `model: 'tiny'` or `model: 'vosk'`.
 
 | Project | Model | Size | Used by "auto" on |
 | --- | --- | --- | --- |
 | `lib_SpeechToText_model_whisperBase` | Whisper base | 98 MB | phones, tablets and computers without WebGPU |
 | `lib_SpeechToText_model_whisperSmall` | Whisper small | 302 MB | computers with WebGPU |
+| `lib_SpeechToText_model_whisperTiny` | Whisper tiny | 34 MB | never: `model: 'tiny'` only |
+| `lib_SpeechToText_model_voskSmallFr` | Vosk small French | 42 MB | never: `model: 'vosk'` only, French |
 
 3. Drop `speechToText_sc` in a page and handle its `Final` event (see the `testSpeechToText` page of this project).
 
@@ -50,6 +55,14 @@ Each browser downloads only the model it uses, once, and keeps it in its Cache S
 | Computer with WebGPU | Whisper small q4 | WebGPU | 300 MB | 0.5 s |
 | Phone or tablet with WebGPU | Whisper base, q4 encoder + q8 decoder | WebGPU + WebAssembly | 73 MB | 0.47 s |
 | No WebGPU | Whisper base q8 | WebAssembly | 77 MB | 2.3 s |
+| `model: 'tiny'`, with WebGPU | Whisper tiny, q4 encoder + q8 decoder | WebGPU + WebAssembly | 42 MB | 0.3 s (base: 0.57 s on the same test) |
+| `model: 'tiny'`, no WebGPU | Whisper tiny q8 | WebAssembly | 43 MB | not measured, expected about half of base |
+| `model: 'vosk'` | Vosk small French (Kaldi) | WebAssembly | 42 MB | streaming, no passes: 13 s of speech recognised in about 3 s |
+
+Whisper tiny is about twice as fast as base and less accurate. Vosk recognises the speech as it comes (no repeated
+passes, so it stays light without WebGPU), but needs one model per language (French today), writes without
+punctuation (the library only capitalises the first word), and cannot translate. With `model: 'vosk'` the spoken
+language must be set (or be the language of the browser): Vosk does not detect it.
 
 With `model: 'auto'`, when only `lib_SpeechToText_model_whisperBase` is deployed, computers use Whisper base too.
 When WebGPU is announced but fails, the engine falls back to Whisper base on WebAssembly.
@@ -101,7 +114,7 @@ model and one microphone, and each receives only the text of its own dictation.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `model` | `'auto'` | `'auto'`, `'base'` or `'small'` |
+| `model` | `'auto'` | `'auto'`, `'tiny'`, `'base'` or `'small'` (Whisper), or `'vosk'` (French only); see [Models](#models) |
 | `language` | `''` | spoken language: empty for the browser language, an ISO code (`'fr'`), a Whisper name (`'french'`) or `'auto'` (see [Languages](#languages)) |
 | `task` | `'transcribe'` | `'transcribe'` writes in the spoken language, `'translate'` writes English |
 | `modelsUrl` | `'${lib_speechtotext.models.url=}'` | folder holding `onnx-community/<model>/`; empty: the model projects of the server |
@@ -142,6 +155,8 @@ Files served by the library from `DisplayObjects/stt`:
 | --- | --- |
 | `stt-engine.js` | page-side engine, one per browser tab (`window.__c8oSpeechToText`): worker, microphone, events |
 | `stt-worker.js` | Web Worker: model choice, voice detection, transcription |
+| `stt-vosk.js` | Vosk engine behind the same protocol as the worker (`model: 'vosk'`) |
+| `lib/vosk.js` | [vosk-browser](https://github.com/ccoreilly/vosk-browser) 0.0.8 (Apache-2.0): WebAssembly build of [Vosk](https://github.com/alphacep/vosk-api) and Kaldi, with its own worker |
 | `stt-capture-worklet.js` | AudioWorklet: microphone to mono 16 kHz chunks of 100 ms |
 | `lib/transformers.min.js` | [transformers.js](https://github.com/huggingface/transformers.js) 4.3.2 |
 | `lib/ort-wasm-simd-threaded*.{mjs,wasm}` | [onnxruntime-web](https://github.com/microsoft/onnxruntime) 1.31.0-dev.20260914-8d85527a0 (plain and WebGPU builds) |
