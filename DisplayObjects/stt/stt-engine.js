@@ -54,6 +54,19 @@ function defaultModelUrl(project) {
 	return root + '/projects/' + project + '/DisplayObjects/models/';
 }
 
+// A module worker must come from the origin of the page. When the library is served by another origin (the live
+// preview of the Studio, an app hosted apart from its Convertigo server), a same-origin blob imports it instead;
+// the server answers with CORS headers, and import.meta.url in the worker stays the real URL.
+function createWorker(url) {
+	if (new URL(url).origin === location.origin) {
+		return new Worker(url, { type: 'module' });
+	}
+	const blobUrl = URL.createObjectURL(new Blob(['import ' + JSON.stringify(url) + ';'], { type: 'text/javascript' }));
+	const worker = new Worker(blobUrl, { type: 'module' });
+	setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+	return worker;
+}
+
 function withSlash(url) {
 	return url.endsWith('/') ? url : url + '/';
 }
@@ -115,7 +128,7 @@ class SpeechToTextEngine {
 		}
 		this.config = key;
 		this.setState({ status: 'loading', ready: false, loading: true, model: '', device: '', reason: '', loadMs: 0, progress: 0, error: '', language: language || 'auto', task });
-		const worker = new Worker(LIB_URL + 'stt-worker.js', { type: 'module' });
+		const worker = createWorker(LIB_URL + 'stt-worker.js');
 		this.worker = worker;
 		this.readyPromise = new Promise((resolve, reject) => {
 			worker.onmessage = (ev) => this.onWorker(ev.data, resolve, reject);
