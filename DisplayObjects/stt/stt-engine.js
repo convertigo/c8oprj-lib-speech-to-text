@@ -6,12 +6,13 @@
 //   const stt = speechToText();
 //   const off = stt.on((e) => { ... });   // every event, see emit() below
 //   await stt.load({ model: 'auto', language: '', task: 'transcribe', modelsUrl: '' });   // '' = language of the browser
-//   await stt.start(ownerId, { micProcessing: true });  …  stt.stop();
+//   await stt.start(ownerId, { micProcessing: true, livePreview: true });  …  stt.stop();
 //
 // Events: {type:'state', state} after every change, {type:'ready', model, device, reason, loadMs, language, task},
 // {type:'partial', owner, text}, {type:'final', owner, text}, {type:'done', owner}, {type:'error', owner, message},
 // {type:'stats', kind, ms, audioS}. state = {status, ready, loading, listening, finishing, speaking, level, model,
-// device, reason, loadMs, progress, owner, error, language ('auto' when detected), task}.
+// device, reason, loadMs, progress, owner, error, language ('auto' when detected), task, live (partial texts on),
+// liveReason ('off', or 'slow' when the 'auto' live preview stopped them on a slow device)}.
 
 const LIB_URL = new URL('./', import.meta.url).href;
 
@@ -84,6 +85,7 @@ class SpeechToTextEngine {
 		this.state = {
 			status: 'idle', ready: false, loading: false, listening: false, finishing: false, speaking: false, level: 0,
 			model: '', device: '', reason: '', loadMs: 0, progress: 0, owner: null, error: '', language: '', task: 'transcribe',
+			live: true, liveReason: '',
 		};
 	}
 
@@ -177,6 +179,9 @@ class SpeechToTextEngine {
 			case 'final':
 				this.emit({ type: 'final', owner, text: m.text });
 				break;
+			case 'live':
+				this.setState({ live: m.active, liveReason: m.active ? '' : m.reason });
+				break;
 			case 'stats':
 				this.emit({ type: 'stats', kind: m.kind, ms: m.ms, audioS: m.audioS });
 				break;
@@ -198,6 +203,8 @@ class SpeechToTextEngine {
 
 	// Starts the microphone for owner (any id: the component or action that asked). Loads the model first when needed.
 	// options.micProcessing false turns off the echo cancellation, noise suppression and gain control of the browser.
+	// options.livePreview: true (default) gives a partial text while the user speaks, false only the final text of each
+	// sentence (one Whisper pass per sentence instead of several), 'auto' stops the partial texts once a pass is slow.
 	async start(owner, options = {}) {
 		if (this.state.listening) {
 			this.stop(false);
@@ -207,6 +214,9 @@ class SpeechToTextEngine {
 		}
 		await this.readyPromise;
 		const processing = options.micProcessing !== false;
+		const live = livePreviewMode(options.livePreview);
+		this.worker.postMessage({ type: 'live', mode: live });
+		this.setState({ live: live !== 'off', liveReason: live === 'off' ? 'off' : '' });
 		try {
 			this.stream = await navigator.mediaDevices.getUserMedia({
 				audio: { channelCount: 1, echoCancellation: processing, noiseSuppression: processing, autoGainControl: processing },
@@ -274,6 +284,14 @@ class SpeechToTextEngine {
 			this.setState({ listening: false, speaking: false, level: 0, status: this.state.ready ? 'ready' : this.state.status });
 		}
 	}
+}
+
+// livePreview option: true / 'true' / undefined → 'on', false / 'false' → 'off', 'auto' → 'auto'
+function livePreviewMode(value) {
+	if (value === false || value === 'false' || value === 'off') {
+		return 'off';
+	}
+	return value === 'auto' ? 'auto' : 'on';
 }
 
 export function speechToText() {

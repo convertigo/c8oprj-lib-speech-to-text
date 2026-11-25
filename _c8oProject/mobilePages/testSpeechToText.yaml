@@ -939,6 +939,12 @@ title: Speech to text
                 - xmlizable: 
                   - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                   - MobileSmartSourceType: script:local?.task || 'transcribe'
+            ↓livePreview [ngx.components.UIUseVariable-1795600000103]: 
+              comment: Partial text while speaking, stopped on a device where a pass is slow
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:auto
             ↓OnPartial [ngx.components.UIControlEvent-1795539920220]: 
               attrName: (Partial)
               eventName: Partial
@@ -1208,6 +1214,41 @@ title: Speech to text
                   - xmlizable: 
                     - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                     - MobileSmartSourceType: script:local?.perf || ''
+            ↓LiveChip [ngx.components.UIDynamicElement-1795600000105]: 
+              beanData: |
+                '{
+                 "ionBean": "Chip",
+                 "Disabled": "plain:false",
+                 "IonColor": "plain",
+                 "IonMode": "plain",
+                 "Outline": "plain:false"
+                }'
+              comment: Shown when the 'auto' live preview stopped the partial texts on a slow device
+              tagName: ion-chip
+              ↓Hidden [ngx.components.UIAttribute-1795600000106]: 
+                attrName: '[hidden]'
+                attrValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: script:local?.state?.liveReason !== 'slow'
+              ↓Icon [ngx.components.UIDynamicElement-1795600000107]: 
+                beanData: |
+                  '{
+                   "ionBean": "Icon",
+                   "IonColor": "plain",
+                   "IconName": "plain:flash-off-outline",
+                   "IconMdName": "source",
+                   "IconIosName": "source",
+                   "IonSize": "plain",
+                   "IconSlot": "plain",
+                   "IconSource": "plain"
+                  }'
+                tagName: ion-icon
+              ↓Text [ngx.components.UIText-1795600000108]: 
+                textValue: 
+                  - xmlizable: 
+                    - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                    - MobileSmartSourceType: plain:Final text only (slow device)
           ↓Actions [ngx.components.UIDynamicElement-1795539920744]: 
             beanData: '{"ionBean":"DivTag"}'
             tagName: div
@@ -1469,6 +1510,12 @@ title: Speech to text
                 - xmlizable: 
                   - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
                   - MobileSmartSourceType: script:local?.task || 'transcribe'
+            ↓livePreview [ngx.components.UIUseVariable-1795600000104]: 
+              comment: Partial text while speaking, stopped on a device where a pass is slow
+              varValue: 
+                - xmlizable: 
+                  - ↑classname: com.twinsoft.convertigo.beans.ngx.components.MobileSmartSourceType
+                  - MobileSmartSourceType: plain:auto
             ↓label [ngx.components.UIUseVariable-1795539920812]: 
               varValue: 
                 - xmlizable: 

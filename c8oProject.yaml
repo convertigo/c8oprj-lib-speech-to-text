@@ -11,7 +11,7 @@
   contextTimeout: 59
   corsOrigin: =Origin
   httpSessionTimeout: 60
-  version: 8.4.0.4
+  version: 8.4.0.5
   ↓void [connectors.SqlConnector]: 🗏 connectors/void.yaml
   ↓lib_SpeechToText_model_whisperBase [references.ProjectSchemaReference]: 
     comment: Whisper base model, used on every device (see README.md)

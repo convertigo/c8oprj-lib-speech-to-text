@@ -54,6 +54,16 @@ Each browser downloads only the model it uses, once, and keeps it in its Cache S
 With `model: 'auto'`, when only `lib_SpeechToText_model_whisperBase` is deployed, computers use Whisper base too.
 When WebGPU is announced but fails, the engine falls back to Whisper base on WebAssembly.
 
+### Slow devices
+
+Each `Partial` text is one more Whisper pass on the whole sentence in progress. Without WebGPU a pass takes about
+2.3 s: the passes then run back to back while the user speaks, the processor stays busy, the partial text lags
+behind, and the final text of a sentence waits for the partial pass in progress. With `livePreview: false` the
+engine only runs the final pass of each sentence, so the text of a sentence comes one pass after the pause.
+`livePreview: 'auto'` keeps the partial texts on fast devices and turns them off on the device as soon as one pass
+takes more than 1.2 s; `StateChanged` then reports `live: false` and `liveReason: 'slow'`. The `Stats` event gives
+the time of every pass on the devices of your users.
+
 To serve the models from elsewhere (a CDN, another server), set the global symbol `lib_speechtotext.models.url` to a
 folder holding `onnx-community/whisper-base/` and `onnx-community/whisper-small/` (the `DisplayObjects/models` folders
 of the model projects), or give `modelsUrl` to the component. The symbol is compiled when the application is built.
@@ -96,6 +106,7 @@ model and one microphone, and each receives only the text of its own dictation.
 | `task` | `'transcribe'` | `'transcribe'` writes in the spoken language, `'translate'` writes English |
 | `modelsUrl` | `'${lib_speechtotext.models.url=}'` | folder holding `onnx-community/<model>/`; empty: the model projects of the server |
 | `micProcessing` | `true` | echo cancellation, noise suppression and automatic gain of the browser; turn it off if words are cut or distorted |
+| `livePreview` | `true` | `true`: `Partial` texts while the user speaks; `false`: only the `Final` text of each sentence (one pass per sentence); `'auto'`: `true` until a pass takes more than 1.2 s, then `false` (see [Slow devices](#slow-devices)) |
 | `preload` | `true` | load the model when the component shows, or at the first click |
 | `showStatus` | `true` | show the state (loading, listening, errors) next to the button |
 | `label` | `''` | text of the button next to the microphone icon |
@@ -106,7 +117,7 @@ model and one microphone, and each receives only the text of its own dictation.
 | `Final` | validated sentence, after each pause and at the stop |
 | `Done` | everything said before the stop is transcribed |
 | `Ready` | `{model, device, reason, loadMs, language, task}` |
-| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error, language, task}` |
+| `StateChanged` | `{status, ready, loading, listening, finishing, speaking, level, model, device, reason, loadMs, progress, error, language, task, live, liveReason}` |
 | `Stats` | `{kind: 'partial' or 'final', ms, audioS}` for each transcription pass |
 | `Error` | message: microphone refused, model project not deployed, worker failure |
 
@@ -138,7 +149,8 @@ Files served by the library from `DisplayObjects/stt`:
 
 Whisper is not a streaming model, so the live text comes from a sliding window. The worker detects speech (adaptive
 energy threshold), transcribes the sentence in progress again as soon as the previous pass ends (`Partial`), and after
-a 0.7 s pause (or 20 s of speech) transcribes it one last time (`Final`). The phrases Whisper invents on noise
+a 0.7 s pause (or 20 s of speech) transcribes it one last time (`Final`), unless `livePreview` turned the partial
+passes off. The phrases Whisper invents on noise
 ("Thanks for watching", "Sous-titres réalisés par…", "Gracias por ver"…) are dropped in English, French, Spanish,
 German, Italian and Portuguese.
 

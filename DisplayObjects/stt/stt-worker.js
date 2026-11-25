@@ -9,9 +9,11 @@
 //      (modelUrls: folder holding onnx-community/<model>/; translate writes English whatever the spoken language)
 //      | {type:'audio', samples: Float32Array mono 16 kHz}
 //      | {type:'flush'} (end of recording: finalize the utterance in progress)
+//      | {type:'live', mode:'on'|'off'|'auto'} (partial passes: always, never, or until a pass is too slow)
 // Out: {type:'progress', loaded, total} | {type:'ready', model, device, dtype, ms, reason}
 //      | {type:'partial', text} | {type:'final', text} | {type:'level', speaking, level}
 //      | {type:'stats', kind, ms, audioS} | {type:'done'} (after a flush) | {type:'error', message}
+//      | {type:'live', active, reason, ms} (in 'auto' mode, the partial passes stopped because a pass was too slow)
 import { env, pipeline } from './lib/transformers.min.js';
 
 const base = new URL('./', import.meta.url).href;
@@ -145,6 +147,7 @@ const PREROLL = 0.4 * SR;        // audio kept before the speech starts
 const END_SILENCE_MS = 700;      // pause that ends an utterance
 const MAX_UTTERANCE = 20 * SR;   // longer utterances are cut
 const MIN_STEP = 0.5 * SR;       // new audio needed before a new partial pass
+const SLOW_PASS_MS = 1200;       // 'auto' live mode: a pass longer than this stops the partial passes on this device
 
 let noise = 0.003;
 let speaking = false;
@@ -158,6 +161,23 @@ let uttId = 0;
 let partialAt = 0;               // uttLen at the last partial pass
 const finals = [];               // utterances waiting for their final pass
 let busy = false;
+// Partial passes give the live text, but each one runs Whisper again on the whole utterance in progress. Without
+// WebGPU a pass takes seconds: the passes then run back to back, the processor stays busy while the user speaks and
+// the final text waits for the partial pass in progress. 'off' keeps only the final pass of each utterance; 'auto'
+// does the same once a pass has been slower than SLOW_PASS_MS (for the life of the worker: the device stays slow).
+let liveMode = 'on';
+let liveSlow = false;
+
+function liveActive() {
+	return liveMode === 'on' || (liveMode === 'auto' && !liveSlow);
+}
+
+function measure(ms) {
+	if (liveMode === 'auto' && !liveSlow && ms > SLOW_PASS_MS) {
+		liveSlow = true;
+		postMessage({ type: 'live', active: false, reason: 'slow', ms });
+	}
+}
 let levelTick = 0;
 
 function append(samples) {
@@ -274,9 +294,10 @@ async function pump() {
 				const r = await run(f.audio);
 				postMessage({ type: 'final', text: r.text });
 				postMessage({ type: 'stats', kind: 'final', ms: r.ms, audioS: f.audio.length / SR });
+				measure(r.ms);
 				continue;
 			}
-			if (speaking && utt && uttLen >= SR && uttLen - partialAt >= MIN_STEP) {
+			if (liveActive() && speaking && utt && uttLen >= SR && uttLen - partialAt >= MIN_STEP) {
 				const id = uttId;
 				partialAt = uttLen;
 				const audio = utt.slice(0, uttLen);
@@ -284,6 +305,7 @@ async function pump() {
 				// a final pass may have closed this utterance meanwhile
 				if (id === uttId && speaking) postMessage({ type: 'partial', text: r.text });
 				postMessage({ type: 'stats', kind: 'partial', ms: r.ms, audioS: audio.length / SR });
+				measure(r.ms);
 				continue;
 			}
 			break;
@@ -312,6 +334,11 @@ self.onmessage = async ({ data }) => {
 			await load(data.model || 'auto');
 		} else if (data.type === 'audio') {
 			onAudio(data.samples);
+		} else if (data.type === 'live') {
+			liveMode = data.mode === 'off' || data.mode === 'auto' ? data.mode : 'on';
+			if (liveMode === 'auto' && liveSlow) {
+				postMessage({ type: 'live', active: false, reason: 'slow', ms: 0 });
+			}
 		} else if (data.type === 'flush') {
 			if (speaking) endUtterance();
 			preroll = new Float32Array(0);

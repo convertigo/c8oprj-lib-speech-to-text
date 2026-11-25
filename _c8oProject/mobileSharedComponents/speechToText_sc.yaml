@@ -53,7 +53,7 @@ scriptContent:
         	}
         
         	public sttOptions(): any {
-        		return { model: this[''model''] || ''auto'', language: this[''language''] || '''', task: this[''task''] === ''translate'' ? ''translate'' : ''transcribe'', modelsUrl: this[''modelsUrl''] || '''', micProcessing: this[''micProcessing''] !== false && this[''micProcessing''] !== ''false'' };
+        		return { model: this[''model''] || ''auto'', language: this[''language''] || '''', task: this[''task''] === ''translate'' ? ''translate'' : ''transcribe'', modelsUrl: this[''modelsUrl''] || '''', micProcessing: this[''micProcessing''] !== false && this[''micProcessing''] !== ''false'', livePreview: this[''livePreview''] ?? true };
         	}
         
         	private sttRefresh() {
@@ -158,6 +158,9 @@ scriptContent:
   value: '''${lib_speechtotext.models.url=}'''
 ↓micProcessing [ngx.components.UICompVariable-1795533642840]: 
   comment: <p>Keep the echo cancellation, noise suppression and automatic gain of the browser on the microphone. Turn it off if words are cut or distorted</p><p><b>Example:</b> <code>true</code></p>
+  value: true
+↓livePreview [ngx.components.UICompVariable-1795600000101]: 
+  comment: '<p>Partial text while the user speaks: true (Partial events several times per second), false (only the Final text of each sentence: one transcription pass per sentence instead of several, for slow devices) or ''auto'' (true until a pass takes more than 1.2 s, typically without WebGPU, then false)</p><p><b>Example:</b> <code>''auto''</code></p>'
   value: true
 ↓preload [ngx.components.UICompVariable-1795533642842]: 
   comment: <p>Load the model as soon as the component shows (true), or at the first click (false)</p><p><b>Example:</b> <code>true</code></p>
