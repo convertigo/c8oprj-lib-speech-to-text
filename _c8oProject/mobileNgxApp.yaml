@@ -206,15 +206,6 @@ tplProjectName: mobilebuilder_tpl_8_4_0_ngx
        "emitResizeWhenApply": "plain:true"
       }'
     comment: Restores and applies the persisted theme preference
-  ↓SetLanguage [ngx.components.UIDynamicAction-1795533500797]: 
-    beanData: |
-      '{
-       "ionBean": "SetLanguageAction",
-       "language": "script:null",
-       "storageKey": "plain:c8o-lang",
-       "globalProperty": "plain:currentLanguage"
-      }'
-    comment: Restores and applies the persisted language preference
 ↓AppGuard [ngx.components.UIAppGuard-1795533500798]: 
   comment: Central guard used to validate page navigation
   ↓AuthorizePages [ngx.components.UIDynamicAction-1795533500799]: 
@@ -1041,38 +1032,6 @@ tplProjectName: mobilebuilder_tpl_8_4_0_ngx
           ion-toolbar ion-button.toolbar-theme-button ion-icon {
             font-size: 1.08rem;
             color: var(--tw-text);
-          }
-          
-          ion-toolbar ion-select.toolbar-lang-select {
-            --padding-start: 0.5rem;
-            --padding-end: 0.45rem;
-            --placeholder-color: var(--tw-text);
-            --border-width: 1px;
-            --border-color: var(--tw-border);
-            --border-radius: 999px;
-            --highlight-color-focused: transparent;
-            --highlight-color-valid: transparent;
-            --highlight-color-invalid: transparent;
-            --background: color-mix(in srgb, var(--tw-surface) 88%, var(--tw-border) 12%);
-            min-height: 2rem;
-            margin-inline-start: 0.35rem;
-            margin-inline-end: 0.35rem;
-            border: 1px solid var(--tw-border);
-            border-radius: 999px;
-            box-shadow: none;
-            color: var(--tw-text);
-          }
-          
-          ion-toolbar ion-select.toolbar-lang-select::part(text) {
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            color: var(--tw-text);
-          }
-          
-          ion-toolbar ion-select.toolbar-lang-select::part(icon) {
-            color: var(--tw-text);
-            opacity: 0.85;
           }
           
           ion-popover::part(content) {
